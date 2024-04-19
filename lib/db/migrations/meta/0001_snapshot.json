@@ -1,11 +1,11 @@
 {
-  "id": "72e840a7-a024-450d-bd6d-8a401d1fd979",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "1dd455e7-8f16-4d5b-8f63-a6709725363c",
+  "prevId": "72e840a7-a024-450d-bd6d-8a401d1fd979",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "user": {
-      "name": "user",
+    "users": {
+      "name": "users",
       "schema": "",
       "columns": {
         "id": {
@@ -44,15 +44,15 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
           ]
         },
-        "user_username_unique": {
-          "name": "user_username_unique",
+        "users_username_unique": {
+          "name": "users_username_unique",
           "nullsNotDistinct": false,
           "columns": [
             "username"
