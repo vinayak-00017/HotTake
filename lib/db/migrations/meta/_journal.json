@@ -15,6 +15,13 @@
       "when": 1713499973528,
       "tag": "0001_nasty_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1713584643135,
+      "tag": "0002_mighty_bullseye",
+      "breakpoints": true
     }
   ]
 }

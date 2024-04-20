@@ -1,69 +1,16 @@
-// import {
-//   timestamp,
-//   pgTable,
-//   text,
-//   primaryKey,
-//   integer,
-// } from "drizzle-orm/pg-core";
-// import type { AdapterAccount } from "next-auth/adapters";
-
 import { sql } from "drizzle-orm";
-import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  AnyPgColumn,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 
-// export const user = pgTable("user", {
-//   id: text("id").notNull().primaryKey(),
-//   name: text("name"),
-//   email: text("email").notNull(),
-//   emailVerified: timestamp("emailVerified", { mode: "date" }),
-//   image: text("image"),
-//   password: text("password"),
-//   username: text("username"),
-// });
-
-// export const accounts = pgTable(
-//   "account",
-//   {
-//     userId: text("userId")
-//       .notNull()
-//       .references(() => user.id, { onDelete: "cascade" }),
-//     type: text("type").$type<AdapterAccount["type"]>().notNull(),
-//     provider: text("provider").notNull(),
-//     providerAccountId: text("providerAccountId").notNull(),
-//     refresh_token: text("refresh_token"),
-//     access_token: text("access_token"),
-//     expires_at: integer("expires_at"),
-//     token_type: text("token_type"),
-//     scope: text("scope"),
-//     id_token: text("id_token"),
-//     session_state: text("session_state"),
-//   },
-//   (account) => ({
-//     compoundKey: primaryKey({
-//       columns: [account.provider, account.providerAccountId],
-//     }),
-//   })
-// );
-
-// export const sessions = pgTable("session", {
-//   sessionToken: text("sessionToken").notNull().primaryKey(),
-//   userId: text("userId")
-//     .notNull()
-//     .references(() => user.id, { onDelete: "cascade" }),
-//   expires: timestamp("expires", { mode: "date" }).notNull(),
-// });
-
-// export const verificationTokens = pgTable(
-//   "verificationToken",
-//   {
-//     identifier: text("identifier").notNull(),
-//     token: text("token").notNull(),
-//     expires: timestamp("expires", { mode: "date" }).notNull(),
-//   },
-//   (vt) => ({
-//     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-//   })
-// );
-
+// User SCHEMA
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   email: varchar("email", { length: 255 }).notNull().unique(),
@@ -71,6 +18,9 @@ export const users = pgTable("users", {
   username: varchar("username", { length: 50 }).unique(),
   name: varchar("name", { length: 255 }),
 });
+
+// POST SCHEMA
+export const userVote = pgEnum("userVote", ["UP", "DOWN"]);
 
 export const posts = pgTable("posts", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
@@ -81,18 +31,41 @@ export const posts = pgTable("posts", {
   updatedAt: timestamp("updatedAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
 
-export const votes = pgTable("votes", {
+export const category = pgTable("category", {
+  id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
+  name: varchar("name", { length: 255 }).notNull(),
+});
+
+export const postCategory = pgTable(
+  "post_category",
+  {
+    postId: uuid("postId")
+      .references(() => posts.id)
+      .notNull(),
+    categoryId: uuid("categoryId")
+      .references(() => category.id)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.postId, table.categoryId] }),
+    };
+  }
+);
+
+export const postVotes = pgTable("post_votes", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   postId: uuid("postId").references(() => posts.id),
   userId: uuid("userId").references(() => users.id),
-  type: varchar("type", { length: 10 }).notNull(), // 'upvote' or 'downvote'
+  type: userVote("userVote").notNull(),
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
 
-export const comments = pgTable("comments", {
+export const postComments = pgTable("post_comments", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   postId: uuid("postId").references(() => posts.id),
   userId: uuid("userId").references(() => users.id),
+  parentId: uuid("parentId").references((): AnyPgColumn => postComments.id),
   content: text("content").notNull(),
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
   updatedAt: timestamp("updatedAt").default(sql.raw("CURRENT_TIMESTAMP")),
