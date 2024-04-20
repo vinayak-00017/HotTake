@@ -3,6 +3,7 @@ import React from "react";
 import { ModeToggle } from "./ModeToggle";
 import Profile from "./Profile";
 import Notifications from "./Notifications";
+import { SigninDialog } from "../SigninDailog";
 
 const Appbar = () => {
   return (
@@ -13,6 +14,7 @@ const Appbar = () => {
       <div>create</div>
       <Notifications></Notifications>
       <Profile></Profile>
+      <SigninDialog></SigninDialog>
     </header>
   );
 };
