@@ -1,13 +1,15 @@
 import React from "react";
 import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+import { allPosts } from "@/lib/actions/post";
+import { posts } from "@/lib/db/src/schema";
+import { title } from "process";
 
-const Post = () => {
+const Post = ({ title, content }: { title: string; content: string }) => {
   return (
     <article className="w-[50vw] flex justify-center flex-col items-center">
       <h5>poster</h5>
-      <h2>Post title</h2>
-      <p>Post content...</p>
+      <h2>{title}</h2>
+      <p>{content}</p>
       <footer>
         <Button>UP</Button>
         <Button>Down</Button>
@@ -15,5 +17,4 @@ const Post = () => {
     </article>
   );
 };
-
 export default Post;
