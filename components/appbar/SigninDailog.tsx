@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Turnstile } from "@marsidev/react-turnstile";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ export function SigninDialog() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [warning, setWarning] = useState<string>();
+  const [token, setToken] = useState<string>("");
 
   const handleSignin = () => {
     signIn("credentials", { usernameOrEmail, password });
@@ -209,6 +211,12 @@ export function SigninDialog() {
                       />
                     </div>
                   </div>
+                  <Turnstile
+                    siteKey="0x4AAAAAAAYVpm59oDJY_n4F"
+                    onSuccess={(token) => {
+                      setToken(token);
+                    }}
+                  ></Turnstile>
                 </div>
               )}
             </>

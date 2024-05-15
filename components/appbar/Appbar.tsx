@@ -15,8 +15,8 @@ const Appbar = async () => {
       <Link href="/">HOtTake</Link>
       <div>search</div>
       <ModeToggle></ModeToggle>
-      <CreateDialog></CreateDialog>
-      <Notifications></Notifications>
+      {session?.user && <CreateDialog></CreateDialog>}
+      {session?.user && <Notifications></Notifications>}
       {session?.user && <Profile></Profile>}
       {!session?.user && <SigninDialog></SigninDialog>}
     </header>
