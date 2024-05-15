@@ -15,10 +15,12 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { createPost } from "@/lib/actions/post";
+import { useSession } from "next-auth/react";
 
 const CreateDialog = () => {
   const [content, setContent] = useState<string>();
   const [title, setTitle] = useState<string>();
+  const session = useSession();
 
   const handleSubmit = async () => {
     if (title && content) {
