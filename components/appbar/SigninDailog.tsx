@@ -92,7 +92,7 @@ export function SigninDialog() {
 
   useEffect(() => {
     generateUniqueUsername();
-  }, [generateUniqueUsername]);
+  }, []);
 
   return (
     <Dialog>

@@ -21,6 +21,7 @@ export async function createPost({
   }
 
   const userId = session.user.id;
+  console.log(userId);
 
   await db.insert(posts).values({
     title,
