@@ -4,6 +4,7 @@ import { users } from "../db/src/schema";
 import { eq, or } from "drizzle-orm";
 import GoogleProvider from "next-auth/providers/google";
 import db from "../db/src/db";
+import { generateUniqueUsername } from "@/utils/handle-username";
 
 export const authOptions = {
   providers: [
@@ -46,6 +47,7 @@ export const authOptions = {
               existingUser[0].password
             );
             if (passwordValidation) {
+              console.log(existingUser[0].username);
               return {
                 id: existingUser[0].id,
                 email: existingUser[0].email,
@@ -103,7 +105,11 @@ export const authOptions = {
             await db.insert(users).values({
               name: name,
               email: email,
+              username: await generateUniqueUsername(),
             });
+            // return Promise.resolve("/");
+          } else {
+            user.id = ifUserExists[0].id;
           }
         } catch (err) {
           console.error(err);
@@ -112,14 +118,13 @@ export const authOptions = {
       return user;
     },
     // async jwt({ token, existingUser }: any) {
-    //   if (user) {
-    //     token.username = existingUser.username;
-    //   }
+    //   token.username = existingUser.username;
     // },
 
     async session({ token, session }: any) {
       session.user.id = token.sub;
-      session.user.username = token.username;
+
+      // session.user.username = token.username;
 
       return session;
     },

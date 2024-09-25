@@ -18,12 +18,14 @@ import { createPost } from "@/lib/actions/post";
 import { useSession } from "next-auth/react";
 
 const CreateDialog = () => {
-  const [content, setContent] = useState<string>();
+  const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>();
   const session = useSession();
+  const userId = session?.data?.user?.id;
 
   const handleSubmit = async () => {
-    if (title && content) {
+    // if(!session.data?.user.)
+    if (title) {
       await createPost({ title, content });
     }
   };
