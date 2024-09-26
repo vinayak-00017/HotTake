@@ -22,6 +22,13 @@
       "when": 1713584643135,
       "tag": "0002_mighty_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1727309930503,
+      "tag": "0003_cloudy_smasher",
+      "breakpoints": true
     }
   ]
 }

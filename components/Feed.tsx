@@ -1,6 +1,7 @@
 import { allPosts } from "@/lib/actions/post";
 import React from "react";
 import Post from "./Post";
+import { PasswordInput } from "./ui/passwordInput";
 
 const Feed = async () => {
   const posts = await allPosts();
