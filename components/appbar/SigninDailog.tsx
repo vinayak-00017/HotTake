@@ -15,8 +15,9 @@ import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { Separator } from "../ui/separator";
-import { checkUsername } from "@/lib/actions/user";
+import { changeUsername, checkUsername, userSignup } from "@/lib/actions/user";
 import Spinner from "../Spinner";
+import { PasswordInput } from "../ui/passwordInput";
 
 export function SigninDialog() {
   const [username, setUsername] = useState<string>("");
@@ -29,6 +30,12 @@ export function SigninDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [warning, setWarning] = useState<string>();
   const [token, setToken] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isValidUsername, setIsValidUsername] = useState<boolean>(false);
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSignin = () => {
     signIn("credentials", { usernameOrEmail, password });
@@ -39,10 +46,25 @@ export function SigninDialog() {
   };
 
   const handleNext = () => {
-    if (isSignup && step == 1) {
+    if (isSignup && step === 1) {
       if (!isValidEmail(email)) {
         return setWarning("Enter a valid email address");
       }
+    }
+    if (isSignup && step === 2) {
+      if (!password || !isValidUsername || isUsernameTaken) {
+        return setWarning("invalid input");
+      }
+    }
+    console.log(step);
+    if (step === 2 && password && isValidUsername && !isUsernameTaken) {
+      signIn("credentials", { usernameOrEmail: email, password })
+        .then(() => {
+          changeUsername(username, email);
+        })
+        .catch((err: any) => {
+          console.error("Signin failed:", err);
+        });
     }
     setWarning("");
     setStep((step) => step + 1);
@@ -71,7 +93,10 @@ export function SigninDialog() {
       } else {
         setIsUsernameTaken(true);
       }
+      setIsValidUsername(true);
       setIsLoading(false);
+    } else {
+      setIsValidUsername(false);
     }
   };
 
@@ -85,6 +110,7 @@ export function SigninDialog() {
     }
 
     setUsername(newUsername);
+    setIsValidUsername(true);
   }, []);
   const generateRandomUsername = () => {
     return "user" + Math.floor(Math.random() * 1000000);
@@ -92,7 +118,7 @@ export function SigninDialog() {
 
   useEffect(() => {
     generateUniqueUsername();
-  }, []);
+  }, [generateUniqueUsername]);
 
   return (
     <Dialog>
@@ -142,11 +168,12 @@ export function SigninDialog() {
                 </Label>
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="col-span-3"
                 />
+                <button onClick={toggleShowPassword}>eye</button>
               </div>
             </div>
           )}
@@ -198,25 +225,38 @@ export function SigninDialog() {
                     )}
                   </div>
                   <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="retlative grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="password" className="text-right">
                         Password
                       </Label>
                       <Input
                         id="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="col-span-3"
+                        className="col-span-3 pr-10"
                       />
+                      <button
+                        onClick={toggleShowPassword}
+                        className="absolute right-0 pr-5 flex items-center text-sm leading-5"
+                      >
+                        eye
+                      </button>
+                      {/* <PasswordInput
+                        id="new_password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="new-password"
+                        className="col-span-3"
+                      ></PasswordInput> */}
                     </div>
                   </div>
-                  <Turnstile
+                  {/* <Turnstile
                     siteKey="0x4AAAAAAAYVpm59oDJY_n4F"
                     onSuccess={(token) => {
                       setToken(token);
                     }}
-                  ></Turnstile>
+                  ></Turnstile> */}
                 </div>
               )}
             </>

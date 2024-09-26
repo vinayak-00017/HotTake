@@ -15,7 +15,7 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }),
-  username: varchar("username", { length: 50 }).unique(),
+  username: varchar("username", { length: 50 }).unique().notNull(),
   name: varchar("name", { length: 255 }),
 });
 

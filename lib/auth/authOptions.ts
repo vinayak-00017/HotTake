@@ -22,8 +22,8 @@ export const authOptions = {
         },
       },
       async authorize(credentials: any) {
-        const hashedPassword = await bcrypt.hash(credentials?.password, 10);
         try {
+          const hashedPassword = await bcrypt.hash(credentials?.password, 10);
           const existingUser = await db
             .select({
               email: users.email,
@@ -38,7 +38,7 @@ export const authOptions = {
                 eq(users.username, credentials.usernameOrEmail)
               )
             );
-          if (existingUser) {
+          if (existingUser.length !== 0) {
             if (!existingUser[0].password) {
               return null;
             }
@@ -55,26 +55,26 @@ export const authOptions = {
               };
             }
             return null;
+          } else {
+            console.log("new login");
+            const newUser = await db
+              .insert(users)
+              .values({
+                username: await generateUniqueUsername(),
+                password: hashedPassword,
+                email: credentials.usernameOrEmail,
+              })
+              .returning();
+            return {
+              id: newUser[0].id,
+              email: newUser[0].email,
+              username: newUser[0].username,
+            };
           }
         } catch (err) {
           console.error(err);
           return null;
         }
-
-        // try {
-        //   const newUser = await db.insert(user).values({
-        //     username: credentials.username,
-        //     password: hashedPassword,
-        //     email: credentials.email,
-        //   });
-        //   return {
-        //     email: credentials.email,
-        //     username: credentials.username,
-        //   };
-        // } catch (e) {
-        //   console.error(e);
-        // }
-        return null;
       },
     }),
   ],
