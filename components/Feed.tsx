@@ -10,7 +10,12 @@ const Feed = async () => {
     <div>
       {posts.map((post) => {
         return (
-          <Post key={post.id} title={post.title} content={post.content}></Post>
+          <Post
+            key={post.id}
+            title={post.title}
+            content={post.content}
+            id={post.id}
+          ></Post>
         );
       })}
     </div>
