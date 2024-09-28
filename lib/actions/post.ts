@@ -5,7 +5,7 @@ import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
 import { postVotes, posts } from "../db/src/schema";
 import { Vote } from "@/utils/posts";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export async function createPost({
   title,
@@ -37,7 +37,18 @@ export async function createPost({
 }
 
 export async function allPosts() {
-  const allPosts = await db.select().from(posts);
+  const allPosts = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      content: posts.content,
+      userId: posts.userId,
+      createdAt: posts.createdAt,
+      votes: sql.raw("ARRAY_AGG(post_votes.type)"),
+    })
+    .from(posts)
+    .leftJoin(postVotes, eq(posts.id, postVotes.postId))
+    .groupBy(posts.id);
   return allPosts;
 }
 
