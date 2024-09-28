@@ -57,7 +57,7 @@ export const postVotes = pgTable("post_votes", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   postId: uuid("postId").references(() => posts.id),
   userId: uuid("userId").references(() => users.id),
-  type: userVote("userVote").notNull(),
+  type: userVote("type").notNull(),
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
 

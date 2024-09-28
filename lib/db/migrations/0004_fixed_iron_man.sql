@@ -1,0 +1,1 @@
+ALTER TABLE "post_votes" RENAME COLUMN "userVote" TO "type";

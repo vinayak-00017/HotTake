@@ -1,6 +1,5 @@
 import Feed from "@/components/Feed";
 import Logout from "@/components/Logout";
-import Post from "@/components/Post";
 
 export default function Home() {
   return (
