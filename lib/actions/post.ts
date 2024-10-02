@@ -36,7 +36,8 @@ export async function createPost({
   };
 }
 
-export async function allPosts() {
+export async function allPosts(page: number) {
+  const offset = page * 5;
   const allPosts = await db
     .select({
       id: posts.id,
@@ -48,7 +49,9 @@ export async function allPosts() {
     })
     .from(posts)
     .leftJoin(postVotes, eq(posts.id, postVotes.postId))
-    .groupBy(posts.id);
+    .groupBy(posts.id)
+    .limit(5)
+    .offset(offset);
   return allPosts;
 }
 
