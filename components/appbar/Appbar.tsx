@@ -5,11 +5,13 @@ import Profile from "./Profile";
 import Notifications from "./Notifications";
 import { SigninDialog } from "./SigninDailog";
 import CreateDialog from "./CreateDialog";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
+import { getServerSession } from "next-auth";
 
 const Appbar = async () => {
+  // const session = useSession();
   const session = await getServerSession(authOptions);
+
   return (
     <header className="p-5 flex justify-between">
       <Link href="/">HOtTake</Link>

@@ -1,7 +1,7 @@
 import React from "react";
 
 const Sidebar = () => {
-  return <div>Sidebar</div>;
+  return <aside className="min-h-screen">Sidebar</aside>;
 };
 
 export default Sidebar;
