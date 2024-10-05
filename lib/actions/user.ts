@@ -54,3 +54,15 @@ export async function changeUsername(username: string, email: string) {
     console.error(err);
   }
 }
+
+// export async function getUser(userId:string) {
+//   try{
+
+//     return await db.select({
+//       username: users.username,
+//       profilePic:
+//     })
+//   }catch(err){
+//     console.error(err)
+//   }
+// }

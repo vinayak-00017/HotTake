@@ -17,6 +17,7 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 255 }),
   username: varchar("username", { length: 50 }).unique().notNull(),
   name: varchar("name", { length: 255 }),
+  profilePic: varchar("profilePic", { length: 255 }),
 });
 
 // POST SCHEMA
@@ -26,7 +27,9 @@ export const posts = pgTable("posts", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   title: varchar("title", { length: 255 }).notNull(),
   content: text("content").notNull(),
-  userId: uuid("userId").references(() => users.id),
+  userId: uuid("userId")
+    .references(() => users.id)
+    .notNull(),
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
   updatedAt: timestamp("updatedAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });

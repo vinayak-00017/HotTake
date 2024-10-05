@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.buttons {
+  background-color: #2a3236;
+  border-radius: 100px;
+}

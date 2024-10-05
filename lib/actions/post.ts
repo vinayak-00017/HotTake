@@ -36,7 +36,21 @@ export async function createPost({
   };
 }
 
-export async function allPosts(page: number) {
+export async function allPosts() {
+  return await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      content: posts.content,
+      userId: posts.userId,
+      createdAt: posts.createdAt,
+      votes: sql.raw("ARRAY_AGG(post_votes.type)"),
+    })
+    .from(posts)
+    .leftJoin(postVotes, eq(posts.id, postVotes.postId))
+    .groupBy(posts.id);
+}
+export async function infinitePosts(page: number) {
   const offset = page * 5;
   const allPosts = await db
     .select({
