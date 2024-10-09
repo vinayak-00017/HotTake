@@ -5,21 +5,22 @@ import { useInView } from "react-intersection-observer";
 import { Spinner } from "@/utils/Icons";
 import { posts } from "@/lib/db/src/schema";
 import { Button } from "./ui/button";
+import { Vote } from "@/utils/posts";
 
-type PostType = {
+export type PostType = {
   id: string;
   title: string;
   content: string;
-  userId: string | null;
+  userId: string;
   createdAt: Date | null;
-  votes: unknown;
+  votes: Vote[];
 };
 interface FeedProps {
   initialPosts: PostType[];
 }
 
 const Feed = async () => {
-  const posts = await allPosts();
+  const posts: PostType[] = await allPosts();
 
   return (
     <div>

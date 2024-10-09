@@ -3,10 +3,11 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
-import { postVotes, posts } from "../db/src/schema";
+import { commentVotes, postComments, postVotes, posts } from "../db/src/schema";
 import { Vote } from "@/utils/posts";
 import { and, eq, sql } from "drizzle-orm";
 
+//posts
 export async function createPost({
   title,
   content,
@@ -23,7 +24,6 @@ export async function createPost({
   }
 
   const userId = session.user.id;
-  console.log(userId);
 
   await db.insert(posts).values({
     title,
@@ -34,6 +34,24 @@ export async function createPost({
   return {
     message: "Post added",
   };
+}
+
+export async function singlePost(postId: string) {
+  const post = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      content: posts.content,
+      userId: posts.userId,
+      createdAt: posts.createdAt,
+      votes: sql.raw("ARRAY_AGG(post_votes.type)"),
+    })
+    .from(posts)
+    .leftJoin(postVotes, eq(posts.id, postVotes.postId))
+    .where(eq(posts.id, postId))
+    .groupBy(posts.id);
+
+  return post[0];
 }
 
 export async function allPosts() {
@@ -48,7 +66,13 @@ export async function allPosts() {
     })
     .from(posts)
     .leftJoin(postVotes, eq(posts.id, postVotes.postId))
-    .groupBy(posts.id);
+    .groupBy(posts.id)
+    .then((results) => {
+      return results.map((post) => ({
+        ...post,
+        votes: post.votes as Vote[],
+      }));
+    });
 }
 export async function infinitePosts(page: number) {
   const offset = page * 5;
@@ -69,6 +93,7 @@ export async function infinitePosts(page: number) {
   return allPosts;
 }
 
+//votes
 export async function handleVote({
   postId,
   type,
@@ -82,7 +107,6 @@ export async function handleVote({
       message: "unauthenticated request",
     };
   }
-
   const existingVote = await db
     .select({ type: postVotes.type, voteId: postVotes.id })
     .from(postVotes)

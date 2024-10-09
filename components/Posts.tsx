@@ -5,8 +5,17 @@ import { Button } from "./ui/button";
 import { handleVote } from "@/lib/actions/post";
 import { Vote, calculateVotes } from "@/utils/posts";
 import { CommentIcon } from "@/utils/Icons";
+import { useRouter } from "next/navigation";
+import PostFooter from "./PostFooter";
 
-const Post = ({
+export const handleUp = (id: string) => {
+  handleVote({ postId: id, type: Vote.UP });
+};
+export const handleDown = (id: string) => {
+  handleVote({ postId: id, type: Vote.DOWN });
+};
+
+const Posts = ({
   title,
   content,
   id,
@@ -16,41 +25,24 @@ const Post = ({
   title: string;
   content: string;
   id: string;
-  votes: any;
+  votes: Vote[];
   userId: string;
 }) => {
-  const handleUp = () => {
-    handleVote({ postId: id, type: Vote.UP });
-  };
-  const handleDown = () => {
-    handleVote({ postId: id, type: Vote.DOWN });
+  const router = useRouter();
+
+  const handlePostClick = () => {
+    router.push(`post/${id}`);
   };
   return (
-    <article className="w-[50vw] flex justify-center flex-col items-center m-2 p-4 transition-colors duration-300 hover:bg-gray-700 rounded-xl">
+    <article
+      onClick={handlePostClick}
+      className="w-[50vw] flex justify-center flex-col items-center m-2 p-4 transition-colors duration-300 hover:bg-gray-700 rounded-xl cursor-pointer"
+    >
       <h5>poster</h5>
       <h2 className="font-bold  text-2xl my-2">{title}</h2>
       <p>{content}</p>
-      <footer className="flex ">
-        <div className="buttons mx-4">
-          <Button
-            onClick={handleUp}
-            className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
-          >
-            UP{" "}
-          </Button>
-          {calculateVotes(votes)}
-          <Button
-            onClick={handleDown}
-            className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
-          >
-            Down
-          </Button>
-        </div>
-        <Button className="text-white buttons ">
-          <CommentIcon />
-        </Button>
-      </footer>
+      <PostFooter votes={votes} id={id} handleClick={handlePostClick} />
     </article>
   );
 };
-export default Post;
+export default Posts;
