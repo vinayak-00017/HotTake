@@ -73,3 +73,11 @@ export const postComments = pgTable("post_comments", {
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
   updatedAt: timestamp("updatedAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
+
+export const commentVotes = pgTable("comment_votes", {
+  id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
+  commentId: uuid("commentId").references(() => postComments.id),
+  userId: uuid("userId").references(() => users.id),
+  type: userVote("type").notNull(),
+  createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
+});
