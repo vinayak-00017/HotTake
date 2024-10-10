@@ -41,7 +41,13 @@ const Posts = ({
       <h5>poster</h5>
       <h2 className="font-bold  text-2xl my-2">{title}</h2>
       <p>{content}</p>
-      <PostFooter votes={votes} id={id} handleClick={handlePostClick} />
+      <PostFooter
+        id={id}
+        votes={votes}
+        handleUp={handleUp}
+        handleDown={handleDown}
+        handleClick={handlePostClick}
+      />
     </article>
   );
 };
