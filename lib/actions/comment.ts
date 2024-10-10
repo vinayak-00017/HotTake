@@ -1,7 +1,7 @@
 "use server";
 
 import { Vote } from "@/utils/posts";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
@@ -53,9 +53,26 @@ export async function handleCommentVotes({
 export async function allComments(id: string) {
   try {
     return await db
-      .select()
+      .select({
+        id: postComments.id,
+        content: postComments.content,
+        userId: postComments.userId,
+        createdAt: postComments.createdAt,
+        updatedAt: postComments.updatedAt,
+        parentId: postComments.parentId,
+        postId: postComments.postId,
+        votes: sql.raw("ARRAY_AGG(comment_votes.type)"),
+      })
       .from(postComments)
-      .where(eq(postComments.postId, id));
+      .where(eq(postComments.postId, id))
+      .groupBy(postComments.id)
+      .leftJoin(commentVotes, eq(postComments.id, commentVotes.commentId))
+      .then((results) => {
+        return results.map((comment) => ({
+          ...comment,
+          votes: comment.votes as Vote[],
+        }));
+      });
   } catch (err) {
     console.error(err);
   }

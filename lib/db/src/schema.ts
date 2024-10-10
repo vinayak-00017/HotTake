@@ -66,8 +66,12 @@ export const postVotes = pgTable("post_votes", {
 
 export const postComments = pgTable("post_comments", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
-  postId: uuid("postId").references(() => posts.id),
-  userId: uuid("userId").references(() => users.id),
+  postId: uuid("postId")
+    .references(() => posts.id)
+    .notNull(),
+  userId: uuid("userId")
+    .references(() => users.id)
+    .notNull(),
   parentId: uuid("parentId").references((): AnyPgColumn => postComments.id),
   content: text("content").notNull(),
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),

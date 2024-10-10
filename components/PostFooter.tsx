@@ -8,10 +8,14 @@ const PostFooter = ({
   id,
   votes,
   handleClick,
+  handleUp,
+  handleDown,
 }: {
   id: string;
   votes: Vote[];
   handleClick: () => void;
+  handleUp: (id: string) => void;
+  handleDown: (id: string) => void;
 }) => {
   return (
     <footer className="flex ">
