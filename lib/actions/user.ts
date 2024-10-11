@@ -55,14 +55,19 @@ export async function changeUsername(username: string, email: string) {
   }
 }
 
-// export async function getUser(userId:string) {
-//   try{
+export async function getUser(userId: string) {
+  try {
+    const user = await db
+      .select({
+        username: users.username,
+        profilePic: users.profilePic,
+        name: users.name,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
 
-//     return await db.select({
-//       username: users.username,
-//       profilePic:
-//     })
-//   }catch(err){
-//     console.error(err)
-//   }
-// }
+    return user[0];
+  } catch (err) {
+    console.error(err);
+  }
+}

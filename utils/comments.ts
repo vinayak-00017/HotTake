@@ -1,18 +1,18 @@
 import { Vote } from "./posts";
 
-type Comment = {
+export type Comment = {
   id: string;
   content: string;
   userId: string | null;
   parentId: string | null;
-  postId: string | null;
+  postId: string;
   createdAt: Date | null;
   updatedAt: Date | null;
   votes: Vote[];
   children?: Comment[];
 };
 
-function buildCommentTree(comments: Comment[]): Comment[] {
+export function buildCommentTree(comments: Comment[]): Comment[] {
   const commentMap: { [key: string]: Comment } = {};
   const roots: Comment[] = [];
 

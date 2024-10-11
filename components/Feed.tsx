@@ -7,13 +7,20 @@ import { posts } from "@/lib/db/src/schema";
 import { Button } from "./ui/button";
 import { Vote } from "@/utils/posts";
 
+export type UserType = {
+  id: string;
+  name: string | null;
+  username: string;
+  profilePic: string | null;
+};
 export type PostType = {
   id: string;
   title: string;
   content: string;
-  userId: string;
   createdAt: Date | null;
-  votes: Vote[];
+  votes: number;
+  commentCount: number;
+  user: UserType | null;
 };
 interface FeedProps {
   initialPosts: PostType[];
@@ -27,12 +34,13 @@ const Feed = async () => {
       {posts.map((post) => {
         return (
           <Post
-            userId={post.userId}
+            user={post.user}
             key={post.id}
             title={post.title}
             content={post.content}
             id={post.id}
             votes={post.votes}
+            commentCount={post.commentCount}
           ></Post>
         );
       })}

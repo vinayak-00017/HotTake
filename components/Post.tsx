@@ -21,31 +21,35 @@ const Post = () => {
     fetctPost();
   }, [postId]);
 
+  // const calculatedVotes = post ? calculateVotes(post.votes) : 0;
   return !post ? (
     <Spinner></Spinner>
   ) : (
     <section>
-      <h5>poster</h5>
+      <h5>{post.user?.username}</h5>
       <h2 className="font-bold  text-2xl my-2">{post.title}</h2>
       <p>{post.content}</p>
       <footer className="flex ">
         <div className="buttons mx-4">
           <Button
             className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
-            onClick={() => handleUp(post.id)}
+            onClick={(event) => handleUp(post.id, event)}
           >
             UP{" "}
           </Button>
-          {calculateVotes(post.votes)}
+          {post.votes}
           <Button
             className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
-            onClick={() => handleDown(post.id)}
+            onClick={(event) => handleDown(post.id, event)}
           >
             Down
           </Button>
         </div>
         <Button className="text-white buttons ">
           <CommentIcon />
+          <span className="p-2">
+            {post.commentCount ? post.commentCount : "reply"}
+          </span>
         </Button>
       </footer>
     </section>

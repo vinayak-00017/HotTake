@@ -1,7 +1,7 @@
 "use server";
 
 import { Vote } from "@/utils/posts";
-import { and, eq, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
