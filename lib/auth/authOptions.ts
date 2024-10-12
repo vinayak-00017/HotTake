@@ -30,6 +30,7 @@ export const authOptions = {
               password: users.password,
               id: users.id,
               username: users.username,
+              profilePic: users.profilePic,
             })
             .from(users)
             .where(
@@ -51,12 +52,12 @@ export const authOptions = {
               return {
                 id: existingUser[0].id,
                 email: existingUser[0].email,
+                image: existingUser[0].profilePic,
                 username: existingUser[0].username,
               };
             }
             return null;
           } else {
-            console.log("new login");
             const newUser = await db
               .insert(users)
               .values({
@@ -92,7 +93,7 @@ export const authOptions = {
     async signIn({ user, account }: any) {
       if (account.provider === "google") {
         try {
-          const { email, name } = user;
+          const { email, name, image } = user;
           const ifUserExists = await db
             .select({
               email: users.email,
@@ -102,11 +103,13 @@ export const authOptions = {
             .where(eq(users.email, email));
 
           if (ifUserExists.length === 0) {
-            await db.insert(users).values({
-              name: name,
-              email: email,
+            const newUser = {
+              name,
+              email,
+              profilePic: image,
               username: await generateUniqueUsername(),
-            });
+            };
+            await db.insert(users).values(newUser);
             // return Promise.resolve("/");
           } else {
             user.id = ifUserExists[0].id;
@@ -118,6 +121,7 @@ export const authOptions = {
       return user;
     },
     // async jwt({ token, existingUser }: any) {
+    //   console.log(existingUser);
     //   token.username = existingUser.username;
     // },
 

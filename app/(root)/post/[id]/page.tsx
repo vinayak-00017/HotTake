@@ -1,7 +1,7 @@
 "use client";
 
-import Comments from "@/components/Comments";
-import Post from "@/components/Post";
+import Comments from "@/components/post/Comments";
+import Post from "@/components/post/Post";
 import React from "react";
 
 const page = () => {

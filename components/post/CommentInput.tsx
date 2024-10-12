@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Button } from "./ui/button";
+
 import { addComment } from "@/lib/actions/comment";
+import { Button } from "../ui/button";
 
 const CommentInput = ({
   postId,

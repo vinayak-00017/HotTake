@@ -61,16 +61,26 @@ export async function allComments(id: string) {
         updatedAt: postComments.updatedAt,
         parentId: postComments.parentId,
         postId: postComments.postId,
-        votes: sql.raw("ARRAY_AGG(comment_votes.type)"),
+        totalVotes: sql.raw(
+          `( SELECT COALESCE(SUM(
+            CASE 
+              WHEN comment_votes.type = 'UP' THEN 1 
+              WHEN comment_votes.type = 'DOWN' THEN -1 
+              ELSE 0
+            END
+          ), 0) 
+          FROM comment_votes
+          WHERE comment_votes."commentId" = post_comments.id 
+          ) AS totalVotes`
+        ),
       })
       .from(postComments)
       .where(eq(postComments.postId, id))
       .groupBy(postComments.id)
-      .leftJoin(commentVotes, eq(postComments.id, commentVotes.commentId))
       .then((results) => {
         return results.map((comment) => ({
           ...comment,
-          votes: comment.votes as Vote[],
+          votes: Number(comment.totalVotes),
         }));
       });
   } catch (err) {

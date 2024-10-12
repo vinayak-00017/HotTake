@@ -48,21 +48,21 @@ export async function singlePost(postId: string) {
       id: posts.id,
       title: posts.title,
       content: posts.content,
+      createdAt: posts.createdAt,
       user: {
         username: users.username,
         id: users.id,
         profilePic: users.profilePic,
         name: users.name,
       },
-      createdAt: posts.createdAt,
       totalVotes: sql.raw(
-        `( SELECT SUM(
+        `( SELECT COALESCE(SUM(
           CASE 
             WHEN post_votes.type = 'UP' THEN 1 
             WHEN post_votes.type = 'DOWN' THEN -1 
             ELSE 0
           END
-        ) 
+        ), 0) 
         FROM post_votes
         WHERE post_votes."postId" = posts.id 
         ) AS totalVotes`
@@ -98,19 +98,30 @@ export async function allPosts() {
         username: users.username,
         profilePic: users.profilePic,
       },
-      votes: sql.raw("ARRAY_AGG(post_votes.type)"),
-      commentCount: sql.raw("COUNT(post_comments.id)"),
+      totalVotes: sql.raw(
+        `( SELECT COALESCE(SUM(
+          CASE 
+            WHEN post_votes.type = 'UP' THEN 1 
+            WHEN post_votes.type = 'DOWN' THEN -1 
+            ELSE 0
+          END
+        ), 0) 
+        FROM post_votes
+        WHERE post_votes."postId" = posts.id 
+        ) AS totalVotes`
+      ),
+      commentCount: sql.raw(`( SELECT COUNT(post_comments.id)
+          FROM post_comments
+          WHERE post_comments."postId" = posts.id
+        ) AS commentCount`),
     })
     .from(posts)
-    .leftJoin(postVotes, eq(posts.id, postVotes.postId))
-    .leftJoin(postComments, eq(posts.id, postComments.postId))
     .leftJoin(users, eq(posts.userId, users.id))
     .groupBy(posts.id, users.id, users.name, users.username, users.profilePic)
     .then((results) => {
-      console.log(results[0].commentCount);
       return results.map((post) => ({
         ...post,
-        votes: post.votes as Vote[],
+        votes: Number(post.totalVotes),
         commentCount: Number(post.commentCount),
       }));
     });

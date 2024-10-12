@@ -71,3 +71,17 @@ export async function getUser(userId: string) {
     console.error(err);
   }
 }
+
+export async function getUsername(userId: string) {
+  try {
+    const username = await db
+      .select({
+        username: users.username,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+    return username[0].username;
+  } catch (err) {
+    console.error(err);
+  }
+}

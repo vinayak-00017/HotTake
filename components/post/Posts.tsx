@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import React from "react";
 import { handleVote } from "@/lib/actions/post";
-import { Vote, calculateVotes } from "@/utils/posts";
-import { CommentIcon } from "@/utils/Icons";
+import { Vote } from "@/utils/posts";
 import { useRouter } from "next/navigation";
 import PostFooter from "./PostFooter";
-import { getUser } from "@/lib/actions/user";
+import Image from "next/image";
 
 type userType = {
   profilePic: string | null;
@@ -35,7 +33,7 @@ const Posts = ({
   title: string;
   content: string;
   id: string;
-  votes: Vote[];
+  votes: number;
   user: userType | null;
   commentCount: number;
 }) => {
@@ -50,7 +48,16 @@ const Posts = ({
       onClick={handlePostClick}
       className="w-[50vw] flex justify-center flex-col items-center m-2 p-4 transition-colors duration-300 hover:bg-gray-700 rounded-xl cursor-pointer"
     >
-      <h5>{user?.username}</h5>
+      <div className="flex justify-center items-center">
+        <Image
+          src={user?.profilePic || "/profilePic/redChili.webp"}
+          alt="profile pic"
+          width={30}
+          height={30}
+          className="rounded-full m-1"
+        ></Image>
+        <h5>{user?.username}</h5>
+      </div>
       <h2 className="font-bold  text-2xl my-2">{title}</h2>
       <p>{content}</p>
       <PostFooter

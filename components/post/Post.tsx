@@ -1,9 +1,9 @@
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { CommentIcon, Spinner } from "@/utils/Icons";
 import { singlePost } from "@/lib/actions/post";
-import { PostType } from "./Feed";
+import { PostType } from "../Feed";
 import { handleDown, handleUp } from "./Posts";
 import { calculateVotes } from "@/utils/posts";
 

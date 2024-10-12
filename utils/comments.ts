@@ -8,7 +8,7 @@ export type Comment = {
   postId: string;
   createdAt: Date | null;
   updatedAt: Date | null;
-  votes: Vote[];
+  votes: number;
   children?: Comment[];
 };
 

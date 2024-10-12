@@ -2,24 +2,14 @@
 
 import { useParams } from "next/navigation";
 import classNames from "classnames";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import CommentInput from "./CommentInput";
 import { allComments, handleCommentVotes } from "@/lib/actions/comment";
-import PostFooter from "./PostFooter";
-import { calculateVotes, Vote } from "@/utils/posts";
-import { buildCommentTree, Comment } from "@/utils/comments";
 
-// interface Comment {
-//   id: string;
-//   postId: string;
-//   userId: string | null;
-//   parentId: string | null;
-//   content: string;
-//   createdAt: Date | null;
-//   updatedAt: Date | null;
-//   votes: Vote[];
-// }
+import { Vote } from "@/utils/posts";
+import { buildCommentTree, Comment } from "@/utils/comments";
+import PostFooter from "./PostFooter";
+import CommentInput from "./CommentInput";
 
 const CommentItem = ({
   comment,
@@ -30,7 +20,6 @@ const CommentItem = ({
   openReplyIds: string[];
   setOpenReplyIds: (ids: string[]) => void;
 }) => {
-  const calculatedVotes = calculateVotes(comment.votes);
   const handleReplyClick = () => {
     if (openReplyIds.includes(comment.id)) {
       setOpenReplyIds(openReplyIds.filter((id) => id !== comment.id));

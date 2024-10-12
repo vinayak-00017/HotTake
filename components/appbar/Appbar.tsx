@@ -9,7 +9,6 @@ import { authOptions } from "@/lib/auth/authOptions";
 import { getServerSession } from "next-auth";
 
 const Appbar = async () => {
-  // const session = useSession();
   const session = await getServerSession(authOptions);
 
   return (
@@ -19,7 +18,13 @@ const Appbar = async () => {
       <ModeToggle></ModeToggle>
       {session?.user && <CreateDialog></CreateDialog>}
       {session?.user && <Notifications></Notifications>}
-      {session?.user && <Profile></Profile>}
+      {session?.user && (
+        <Profile
+          userId={session.user.id}
+          name={session.user.name}
+          profilePic={session.user.image}
+        ></Profile>
+      )}
       {!session?.user && <SigninDialog></SigninDialog>}
     </header>
   );

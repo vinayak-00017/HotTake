@@ -1,7 +1,6 @@
 import { CommentIcon } from "@/utils/Icons";
-import { calculateVotes, Vote } from "@/utils/posts";
 import React from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 const PostFooter = ({
   id,
@@ -12,7 +11,7 @@ const PostFooter = ({
   handleDown,
 }: {
   id: string;
-  votes: Vote[];
+  votes: number;
   commentCount: number | null;
   handleClick: () => void;
   handleUp: (id: string, event: React.MouseEvent) => void;
@@ -27,7 +26,7 @@ const PostFooter = ({
         >
           UP{" "}
         </Button>
-        {calculateVotes(votes)}
+        {votes}
         <Button
           onClick={(event) => handleDown(id, event)}
           className="hover:bg-gray-800 transition-colors duration-200 rounded-full"

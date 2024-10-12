@@ -1,11 +1,6 @@
 import { allPosts } from "@/lib/actions/post";
 import React, { useCallback, useEffect, useState } from "react";
-import Post from "./Posts";
-import { useInView } from "react-intersection-observer";
-import { Spinner } from "@/utils/Icons";
-import { posts } from "@/lib/db/src/schema";
-import { Button } from "./ui/button";
-import { Vote } from "@/utils/posts";
+import Post from "./post/Posts";
 
 export type UserType = {
   id: string;
@@ -22,9 +17,6 @@ export type PostType = {
   commentCount: number;
   user: UserType | null;
 };
-interface FeedProps {
-  initialPosts: PostType[];
-}
 
 const Feed = async () => {
   const posts: PostType[] = await allPosts();
