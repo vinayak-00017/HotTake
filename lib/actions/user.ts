@@ -3,6 +3,9 @@
 import { eq } from "drizzle-orm";
 import db from "../db/src/db";
 import { users } from "../db/src/schema";
+import { SessionProvider } from "next-auth/react";
+import { authOptions } from "../auth/authOptions";
+import { getServerSession } from "next-auth";
 
 export async function checkUsername(username: string) {
   try {
@@ -55,8 +58,17 @@ export async function changeUsername(username: string, email: string) {
   }
 }
 
-export async function getUser(userId: string) {
+export async function getUser() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.user?.id) {
+      return {
+        message: "Unauthenticated request",
+      };
+    }
+
+    const userId = session.user.id;
+
     const user = await db
       .select({
         username: users.username,

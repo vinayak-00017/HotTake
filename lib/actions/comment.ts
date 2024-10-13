@@ -6,6 +6,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
 import { commentVotes, postComments } from "../db/src/schema";
+import { singlePost } from "./post";
+import { Comment } from "@/utils/comments";
 
 export async function handleCommentVotes({
   commentId,
@@ -88,6 +90,50 @@ export async function allComments(id: string) {
   }
 }
 
+export async function singleComment(id: string) {
+  try {
+    const comment = await db
+      .select({
+        id: postComments.id,
+        content: postComments.content,
+        userId: postComments.userId,
+        createdAt: postComments.createdAt,
+        updatedAt: postComments.updatedAt,
+        parentId: postComments.parentId,
+        postId: postComments.postId,
+        totalVotes: sql.raw(
+          `( SELECT COALESCE(SUM(
+            CASE 
+              WHEN comment_votes.type = 'UP' THEN 1 
+              WHEN comment_votes.type = 'DOWN' THEN -1 
+              ELSE 0
+            END
+          ), 0) 
+          FROM comment_votes
+          WHERE comment_votes."commentId" = post_comments.id 
+          ) AS totalVotes`
+        ),
+      })
+      .from(postComments)
+      .where(eq(postComments.id, id))
+      .groupBy(postComments.id);
+
+    if (!comment || comment.length === 0) {
+      return null;
+    }
+
+    const result = comment[0];
+
+    return {
+      ...result,
+      children: [],
+      votes: Number(result.totalVotes),
+    } as Comment;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export async function addComment({
   postId,
   content,
@@ -106,16 +152,19 @@ export async function addComment({
     }
 
     const userId = session.user.id;
-    await db.insert(postComments).values({
+    const newComment = {
       userId,
       parentId,
       content,
       postId,
-    });
-
-    return {
-      message: "comment added succussfully",
     };
+    const id = await db
+      .insert(postComments)
+      .values(newComment)
+      .returning({ commentId: postComments.id });
+    const result = singleComment(id[0].commentId);
+
+    return result;
   } catch (err) {
     console.error(err);
   }

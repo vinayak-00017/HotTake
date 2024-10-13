@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth/authOptions";
 import { getServerSession } from "next-auth";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   const session = getServerSession(authOptions);
   return (
     <div>
@@ -14,4 +14,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -1,72 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import classNames from "classnames";
 import React, { useEffect, useState } from "react";
-
 import { allComments, handleCommentVotes } from "@/lib/actions/comment";
-
 import { Vote } from "@/utils/posts";
 import { buildCommentTree, Comment } from "@/utils/comments";
-import PostFooter from "./PostFooter";
 import CommentInput from "./CommentInput";
-
-const CommentItem = ({
-  comment,
-  openReplyIds,
-  setOpenReplyIds,
-}: {
-  comment: Comment;
-  openReplyIds: string[];
-  setOpenReplyIds: (ids: string[]) => void;
-}) => {
-  const handleReplyClick = () => {
-    if (openReplyIds.includes(comment.id)) {
-      setOpenReplyIds(openReplyIds.filter((id) => id !== comment.id));
-    } else {
-      setOpenReplyIds([...openReplyIds, comment.id]);
-    }
-  };
-  return (
-    <article
-      key={comment.id}
-      className={classNames("pb-4, mb-4", {
-        "ml-5": comment.parentId,
-        "ml-0": !comment.parentId,
-      })}
-    >
-      <h5>poster</h5>
-      <h3>{comment.content}</h3>
-      <PostFooter
-        handleDown={() =>
-          handleCommentVotes({ commentId: comment.id, type: Vote.DOWN })
-        }
-        handleUp={() =>
-          handleCommentVotes({ commentId: comment.id, type: Vote.UP })
-        }
-        id={comment.id}
-        votes={comment.votes}
-        handleClick={handleReplyClick}
-        commentCount={null}
-      ></PostFooter>
-      {openReplyIds.includes(comment.id) && (
-        <CommentInput postId={comment.postId} parentId={comment.id} />
-      )}
-      {comment.children && comment.children.length > 0 && (
-        <div>
-          {comment.children.map((child) => (
-            <CommentItem
-              key={child.id}
-              comment={child}
-              openReplyIds={openReplyIds}
-              setOpenReplyIds={setOpenReplyIds}
-            />
-          ))}
-        </div>
-      )}
-    </article>
-  );
-};
+import CommentItem from "./CommentItem";
 
 const Comments = () => {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -74,6 +14,7 @@ const Comments = () => {
   const [openReplyIds, setOpenReplyIds] = useState<string[]>([]);
   const { id } = useParams();
   const postId = Array.isArray(id) ? id[0] : id;
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -93,11 +34,23 @@ const Comments = () => {
     handleCommentVotes({ commentId: id, type: Vote.DOWN });
   };
 
+  const handleClick = () => {
+    setIsOpen(false);
+  };
   return (
     <section className="w-1/2">
-      <CommentInput postId={postId} parentId={parentId} />
+      {!isOpen && <div onClick={() => setIsOpen(true)}> Post a reply</div>}
+      {isOpen && (
+        <CommentInput
+          setComments={setComments}
+          postId={postId}
+          parentId={parentId}
+          handleClick={handleClick}
+        />
+      )}
       {comments.map((comment) => (
         <CommentItem
+          setComments={setComments}
           key={comment.id}
           comment={comment}
           openReplyIds={openReplyIds}

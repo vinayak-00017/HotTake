@@ -1,4 +1,10 @@
-import { CommentIcon } from "@/utils/Icons";
+import {
+  CommentIcon,
+  CookingPotAfter,
+  CookingPotBefore,
+  Fire,
+  Trash,
+} from "@/utils/Icons";
 import React from "react";
 import { Button } from "../ui/button";
 
@@ -19,19 +25,19 @@ const PostFooter = ({
 }) => {
   return (
     <footer className="flex justify-start">
-      <div className="buttons mx-4">
+      <div className="flex items-center buttons mx-4">
         <Button
           onClick={(event) => handleUp(id, event)}
-          className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
+          className="hover:bg-orange-900 transition-colors duration-200 rounded-full"
         >
-          UP{" "}
+          <Fire />
         </Button>
         {votes}
         <Button
           onClick={(event) => handleDown(id, event)}
           className="hover:bg-gray-800 transition-colors duration-200 rounded-full"
         >
-          Down
+          <Trash />
         </Button>
       </div>
       <Button onClick={handleClick} className="text-white buttons ">
