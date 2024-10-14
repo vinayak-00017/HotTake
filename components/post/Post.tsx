@@ -1,14 +1,16 @@
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { CommentIcon, Fire, Spinner, Trash } from "@/utils/Icons";
 import { singlePost } from "@/lib/actions/post";
 import { PostType } from "../Feed";
 import { handleDown, handleUp } from "./Posts";
+import Image from "next/image";
 
 const Post = () => {
   const [post, setPost] = useState<PostType>();
 
+  const router = useRouter();
   const { id } = useParams();
   const postId = Array.isArray(id) ? id[0] : id;
 
@@ -24,7 +26,22 @@ const Post = () => {
     <Spinner></Spinner>
   ) : (
     <section>
-      <h5>{post.user?.username}</h5>
+      <div
+        className="flex cursor-pointer"
+        onClick={() => router.push(`/profile/${post.user?.username}`)}
+      >
+        <Image
+          src={post.user?.profilePic || "/profilePic/redChili.webp"}
+          alt="profilePic"
+          width={48}
+          height={48}
+          className="h-10 w-10 rounded-full"
+        />
+        <div>
+          <h5>{post.user?.name}</h5>
+          <h6>@{post.user?.username}</h6>
+        </div>
+      </div>
       <h2 className="font-bold  text-2xl my-2">{post.title}</h2>
       <p>{post.content}</p>
       <footer className="flex ">

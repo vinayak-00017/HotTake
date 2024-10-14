@@ -42,13 +42,20 @@ const Posts = ({
   const handlePostClick = () => {
     router.push(`post/${id}`);
   };
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/profile/${user?.username}`);
+  };
 
   return (
     <article
       onClick={handlePostClick}
       className="w-[50vw] flex justify-center flex-col items-center m-2 p-4 transition-colors duration-300 hover:bg-gray-700 rounded-xl cursor-pointer"
     >
-      <div className="flex justify-center items-center">
+      <div
+        className="flex justify-center items-center"
+        onClick={handleProfileClick}
+      >
         <Image
           src={user?.profilePic || "/profilePic/redChili.webp"}
           alt="profile pic"

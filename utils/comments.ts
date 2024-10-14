@@ -3,7 +3,12 @@ import { Vote } from "./posts";
 export type Comment = {
   id: string;
   content: string;
-  userId: string | null;
+  user: {
+    username: string;
+    name: string | null;
+    profilePic: string | null;
+    id: string;
+  };
   parentId: string | null;
   postId: string;
   createdAt: Date | null;

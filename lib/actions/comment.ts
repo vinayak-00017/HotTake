@@ -5,7 +5,7 @@ import { and, count, eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
-import { commentVotes, postComments } from "../db/src/schema";
+import { commentVotes, postComments, users } from "../db/src/schema";
 import { singlePost } from "./post";
 import { Comment } from "@/utils/comments";
 
@@ -58,7 +58,12 @@ export async function allComments(id: string) {
       .select({
         id: postComments.id,
         content: postComments.content,
-        userId: postComments.userId,
+        user: {
+          id: users.id,
+          name: users.name,
+          username: users.username,
+          profilePic: users.profilePic,
+        },
         createdAt: postComments.createdAt,
         updatedAt: postComments.updatedAt,
         parentId: postComments.parentId,
@@ -77,8 +82,15 @@ export async function allComments(id: string) {
         ),
       })
       .from(postComments)
+      .innerJoin(users, eq(postComments.userId, users.id))
       .where(eq(postComments.postId, id))
-      .groupBy(postComments.id)
+      .groupBy(
+        postComments.id,
+        users.id,
+        users.name,
+        users.username,
+        users.profilePic
+      )
       .then((results) => {
         return results.map((comment) => ({
           ...comment,
@@ -96,7 +108,12 @@ export async function singleComment(id: string) {
       .select({
         id: postComments.id,
         content: postComments.content,
-        userId: postComments.userId,
+        user: {
+          id: users.id,
+          name: users.name,
+          username: users.username,
+          profilePic: users.profilePic,
+        },
         createdAt: postComments.createdAt,
         updatedAt: postComments.updatedAt,
         parentId: postComments.parentId,
@@ -115,8 +132,15 @@ export async function singleComment(id: string) {
         ),
       })
       .from(postComments)
+      .leftJoin(users, eq(postComments.userId, users.id))
       .where(eq(postComments.id, id))
-      .groupBy(postComments.id);
+      .groupBy(
+        postComments.id,
+        users.id,
+        users.name,
+        users.username,
+        users.profilePic
+      );
 
     if (!comment || comment.length === 0) {
       return null;

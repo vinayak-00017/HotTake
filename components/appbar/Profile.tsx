@@ -13,26 +13,21 @@ import { Button } from "../ui/button";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getUsername } from "@/lib/actions/user";
+import Link from "next/link";
 
 const Profile = ({
-  userId,
+  username,
   name,
   profilePic,
 }: {
-  userId: string;
+  username: string;
   name: string;
   profilePic: string;
 }) => {
   const router = useRouter();
 
-  // const handleProfileClick = async () => {
-  //   const username = await getUsername(userId);
-  //   router.push(`/profile/${username}`);
-  // };
-
   return (
-    <div className="rounded-full">
+    <div className="rounded-full bg-slate-800">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Image
@@ -43,16 +38,18 @@ const Profile = ({
             className="rounded-full"
           ></Image>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="bg-slate-900 rounded-xl ">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push(`/profile/${userId}`)}>
-            Profile
+          <DropdownMenuItem>
+            <Link href={`/profile/${username}`}>Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Button onClick={() => signOut()}>Signout</Button>
+            <button onClick={() => signOut()}>Signout</button>
           </DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href={"/settings"}>Settings</Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
