@@ -3,7 +3,6 @@
 import { eq } from "drizzle-orm";
 import db from "../db/src/db";
 import { users } from "../db/src/schema";
-import { SessionProvider } from "next-auth/react";
 import { authOptions } from "../auth/authOptions";
 import { getServerSession } from "next-auth";
 

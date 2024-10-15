@@ -1,56 +1,11 @@
 "use server";
 
-import { Vote } from "@/utils/posts";
-import { and, count, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
-import { commentVotes, postComments, users } from "../db/src/schema";
-import { singlePost } from "./post";
+import { postComments, users } from "../db/src/schema";
 import { Comment } from "@/utils/comments";
-
-export async function handleCommentVotes({
-  commentId,
-  type,
-}: {
-  commentId: string;
-  type: Vote;
-}) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || !session.user?.id) {
-    return {
-      message: "unauthenticated request",
-    };
-  }
-  const existingVote = await db
-    .select({ type: commentVotes.type, voteId: commentVotes.id })
-    .from(commentVotes)
-    .where(
-      and(
-        eq(commentVotes.userId, session.user.id),
-        eq(commentVotes.commentId, commentId)
-      )
-    );
-
-  if (existingVote[0]) {
-    await db
-      .delete(commentVotes)
-      .where(eq(commentVotes.id, existingVote[0].voteId));
-    if (existingVote[0].type !== type) {
-      await db.insert(commentVotes).values({
-        commentId: commentId,
-        userId: session.user.id,
-        type: type,
-      });
-    }
-  } else {
-    await db.insert(commentVotes).values({
-      commentId: commentId,
-      userId: session.user.id,
-      type: type,
-    });
-  }
-}
 
 export async function allComments(id: string) {
   try {
