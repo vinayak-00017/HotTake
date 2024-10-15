@@ -1,25 +1,15 @@
 "use client";
 
 import React from "react";
-import { handleVote } from "@/lib/actions/post";
-import { Vote } from "@/utils/posts";
 import { useRouter } from "next/navigation";
 import PostFooter from "./PostFooter";
 import Image from "next/image";
 
 type userType = {
+  id: string;
   profilePic: string | null;
   username: string;
   name: string | null;
-};
-
-export const handleUp = (id: string, event: React.MouseEvent) => {
-  event.stopPropagation();
-  handleVote({ postId: id, type: Vote.UP });
-};
-export const handleDown = (id: string, event: React.MouseEvent) => {
-  event.stopPropagation();
-  handleVote({ postId: id, type: Vote.DOWN });
 };
 
 const Posts = ({
@@ -68,10 +58,8 @@ const Posts = ({
       <h2 className="font-bold  text-2xl my-2">{title}</h2>
       <p>{content}</p>
       <PostFooter
-        id={id}
+        postId={id}
         votes={votes}
-        handleUp={handleUp}
-        handleDown={handleDown}
         handleClick={handlePostClick}
         commentCount={commentCount}
       />

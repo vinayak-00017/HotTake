@@ -1,12 +1,10 @@
 import classNames from "classnames";
 import React from "react";
-import PostFooter from "./PostFooter";
-import { handleCommentVotes } from "@/lib/actions/comment";
 import CommentInput from "./CommentInput";
 import { Comment } from "@/utils/comments";
-import { Vote } from "@/utils/posts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import CommentFooter from "./CommentFooter";
 
 const CommentItem = ({
   setComments,
@@ -50,18 +48,11 @@ const CommentItem = ({
         <h6>@{comment.user.username}</h6>
       </div>
       <h3>{comment.content}</h3>
-      <PostFooter
-        handleDown={() =>
-          handleCommentVotes({ commentId: comment.id, type: Vote.DOWN })
-        }
-        handleUp={() =>
-          handleCommentVotes({ commentId: comment.id, type: Vote.UP })
-        }
-        id={comment.id}
+      <CommentFooter
+        commentId={comment.id}
         votes={comment.votes}
         handleClick={handleReplyClick}
-        commentCount={null}
-      ></PostFooter>
+      ></CommentFooter>
       {openReplyIds.includes(comment.id) && (
         <CommentInput
           setComments={setComments}

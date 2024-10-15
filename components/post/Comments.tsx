@@ -2,8 +2,7 @@
 
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { allComments, handleCommentVotes } from "@/lib/actions/comment";
-import { Vote } from "@/utils/posts";
+import { allComments } from "@/lib/actions/comment";
 import { buildCommentTree, Comment } from "@/utils/comments";
 import CommentInput from "./CommentInput";
 import CommentItem from "./CommentItem";
@@ -27,13 +26,6 @@ const Comments = ({ profilePic }: { profilePic: string | null }) => {
     };
     fetchComments();
   }, [postId]);
-
-  const handleUp = (id: string) => {
-    handleCommentVotes({ commentId: id, type: Vote.UP });
-  };
-  const handleDown = (id: string) => {
-    handleCommentVotes({ commentId: id, type: Vote.DOWN });
-  };
 
   const handleClick = () => {
     setIsOpen(false);

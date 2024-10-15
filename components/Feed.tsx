@@ -1,5 +1,5 @@
 import { allPosts } from "@/lib/actions/post";
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import Post from "./post/Posts";
 
 export type UserType = {

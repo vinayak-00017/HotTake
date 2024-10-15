@@ -1,18 +1,16 @@
 import { CommentIcon, Fire, Trash } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { getVoteType, handleVote } from "@/lib/actions/votes";
+import { getCommentVoteType, handleCommentVotes } from "@/lib/actions/votes";
 import { Vote } from "@/utils/posts";
 
-const PostFooter = ({
-  postId,
+const CommentFooter = ({
+  commentId,
   votes,
-  commentCount,
   handleClick,
 }: {
-  postId: string;
+  commentId: string;
   votes: number;
-  commentCount: number | null;
   handleClick: () => void;
 }) => {
   const [vote, setVote] = useState<"UP" | "DOWN" | null>(null);
@@ -20,14 +18,14 @@ const PostFooter = ({
 
   useEffect(() => {
     const fetchVote = async () => {
-      const fetchedVote = await getVoteType(postId);
+      const fetchedVote = await getCommentVoteType(commentId);
       setVote(fetchedVote);
     };
     fetchVote();
-  }, [postId]);
+  }, [commentId]);
   const handleUp = async (event: React.MouseEvent) => {
     event.stopPropagation();
-    const result = await handleVote({ postId, type: Vote.UP });
+    const result = await handleCommentVotes({ commentId, type: Vote.UP });
     if (typeof result.totalVotes === "number") {
       setVoteCount(result.totalVotes);
     }
@@ -39,7 +37,7 @@ const PostFooter = ({
   };
   const handleDown = async (event: React.MouseEvent) => {
     event.stopPropagation();
-    const result = await handleVote({ postId, type: Vote.DOWN });
+    const result = await handleCommentVotes({ commentId, type: Vote.DOWN });
     if (typeof result.totalVotes === "number") {
       setVoteCount(result.totalVotes);
     }
@@ -52,7 +50,7 @@ const PostFooter = ({
 
   return (
     <footer className="flex justify-start">
-      <div className="flex items-center buttons mx-4">
+      <div className="flex items-center  mx-4">
         <Button
           onClick={(event) => handleUp(event)}
           className={`hover:bg-orange-400 transition-colors duration-200 rounded-full`}
@@ -71,12 +69,12 @@ const PostFooter = ({
           />
         </Button>
       </div>
-      <Button onClick={handleClick} className="text-white buttons ">
+      <Button onClick={handleClick} className="text-white">
         <CommentIcon />
-        <span className="p-2">{commentCount ? commentCount : "reply"}</span>
+        <span className="p-2">reply</span>
       </Button>
     </footer>
   );
 };
 
-export default PostFooter;
+export default CommentFooter;

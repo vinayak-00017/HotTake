@@ -60,7 +60,7 @@ export function Spinner() {
   );
 }
 
-export function Trash() {
+export function Trash({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ export function Trash() {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="h-6 w-6"
+      className={`w-6 h-6 ${className}`}
     >
       <path
         strokeLinecap="round"
@@ -103,15 +103,15 @@ export function CookingPotAfter() {
   );
 }
 
-export function Fire() {
+export function Fire({ className }: { className?: string }) {
   return (
     <svg
+      className={`w-6 h-6 ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth="1.5"
       stroke="currentColor"
-      className="w-6 h-6"
     >
       <path
         strokeLinecap="round"
