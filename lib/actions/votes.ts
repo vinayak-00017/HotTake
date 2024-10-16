@@ -15,7 +15,7 @@ export async function handleVote({
   type: Vote;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !session.user?.id) {
+  if (!session?.user && !session.user?.id) {
     return {
       message: "unauthenticated request",
     };
@@ -73,7 +73,7 @@ export async function handleCommentVotes({
   type: Vote;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || !session.user?.id) {
+  if (!session?.user && !session.user?.id) {
     return {
       message: "unauthenticated request",
     };
@@ -130,7 +130,7 @@ export async function handleCommentVotes({
 
 export async function getVoteType(postId: string) {
   const session = await getServerSession(authOptions);
-  if (session?.user || session.user?.id) {
+  if (session?.user && session.user?.id) {
     const voteType = await db
       .select({ type: postVotes.type })
       .from(postVotes)
@@ -151,7 +151,7 @@ export async function getVoteType(postId: string) {
 
 export async function getCommentVoteType(commentId: string) {
   const session = await getServerSession(authOptions);
-  if (session?.user || session.user?.id) {
+  if (session?.user && session.user?.id) {
     const voteType = await db
       .select({ type: commentVotes.type })
       .from(commentVotes)

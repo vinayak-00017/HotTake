@@ -48,7 +48,6 @@ export const authOptions = {
               existingUser[0].password
             );
             if (passwordValidation) {
-              console.log(existingUser[0].username);
               return {
                 id: existingUser[0].id,
                 email: existingUser[0].email,

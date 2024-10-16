@@ -1,7 +1,9 @@
-import { allPosts } from "@/lib/actions/post";
-import React from "react";
-import Post from "./post/Posts";
+"use client";
 
+import { allPosts, infinitePosts } from "@/lib/actions/post";
+import React, { useCallback, useEffect, useState } from "react";
+import Post from "./post/Posts";
+import { useInView } from "react-intersection-observer";
 export type UserType = {
   id: string;
   name: string | null;
@@ -18,8 +20,25 @@ export type PostType = {
   user: UserType | null;
 };
 
-const Feed = async () => {
-  const posts: PostType[] = await allPosts();
+const Feed = () => {
+  const [page, setPage] = useState<number>(0);
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const { ref, inView } = useInView();
+
+  const fetchPosts = useCallback(async () => {
+    setLoading(true);
+    const fetchedPosts: PostType[] = await infinitePosts(page);
+    setPosts((prevPosts) => [...prevPosts, ...fetchedPosts]);
+    setPage((page) => page + 1);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (inView) {
+      fetchPosts();
+    }
+  }, [inView, fetchPosts]);
 
   return (
     <div>
@@ -36,6 +55,8 @@ const Feed = async () => {
           ></Post>
         );
       })}
+      <div ref={ref}></div>
+      <button onClick={fetchPosts}>load more</button>
     </div>
   );
 };

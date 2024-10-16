@@ -1,7 +1,18 @@
+import { getUser } from "@/lib/actions/user";
 import React from "react";
 
-const ProfileHeader = () => {
-  return <div>ProfileHeader</div>;
+const ProfileHeader = async () => {
+  const user = await getUser();
+  return (
+    <div>
+      ProfileHeader
+      <h3>name</h3>
+      <h4>username</h4>
+      <p>bio</p>
+      <span>followers</span>
+      <span>following</span>
+    </div>
+  );
 };
 
 export default ProfileHeader;

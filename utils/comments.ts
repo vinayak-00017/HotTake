@@ -1,5 +1,3 @@
-import { Vote } from "./posts";
-
 export type Comment = {
   id: string;
   content: string;

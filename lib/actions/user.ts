@@ -6,6 +6,7 @@ import { users } from "../db/src/schema";
 import { authOptions } from "../auth/authOptions";
 import { getServerSession } from "next-auth";
 
+//checks username availibility
 export async function checkUsername(username: string) {
   try {
     const isUser = await db
@@ -25,42 +26,64 @@ export async function checkUsername(username: string) {
   return false;
 }
 
-export async function userSignup({
-  username,
-  email,
-  password,
-}: {
-  username: string;
-  email: string;
-  password: string;
-}) {
+//Check email availability
+export async function checkEmailAvailability(email: string) {
   try {
-    await db.insert(users).values({
-      password: password,
-      email: email,
-      username: username,
-    });
-    console.log("Signup Complete");
+    const isUser = await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(eq(users.email, email));
+    console.log(isUser[0]);
+
+    if (isUser[0] && isUser[0].id.length !== 0) {
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  return true;
+}
+
+//changes the username during signup
+export async function changeUsername(username: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session.user && session.user.id) {
+      await db
+        .update(users)
+        .set({ username: username })
+        .where(eq(users.id, session.user.id));
+    }
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function changeUsername(username: string, email: string) {
-  try {
-    await db
-      .update(users)
-      .set({ username: username })
-      .where(eq(users.email, email));
-  } catch (err) {
-    console.error(err);
-  }
-}
+// export async function getUser() {
+//   try{
+//     const session = await getServerSession(authOptions);
+//     if(session?.user && session.user?.id ){
+//       const userId = session.user.ID
+
+//       const user = await db.select({
+//         id: users.id,
+//         username: users.username,
+//         name: users.name,
+//         profilePic: users.profilePic,
+//       }).from(users)
+//     }
+//   }catch(err){
+//     console.error(err)
+//   }
+// }
 
 export async function getUser() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || !session.user?.id) {
+    if (!session?.user && !session.user?.id) {
       return {
         message: "Unauthenticated request",
       };
@@ -73,6 +96,7 @@ export async function getUser() {
         username: users.username,
         profilePic: users.profilePic,
         name: users.name,
+        id: users.id,
       })
       .from(users)
       .where(eq(users.id, userId));

@@ -121,19 +121,46 @@ export async function allPosts() {
 }
 export async function infinitePosts(page: number) {
   const offset = page * 5;
-  const allPosts = await db
+  const limitedPosts = await db
     .select({
       id: posts.id,
       title: posts.title,
       content: posts.content,
-      userId: posts.userId,
       createdAt: posts.createdAt,
-      votes: sql.raw("ARRAY_AGG(post_votes.type)"),
+      user: {
+        id: users.id,
+        name: users.name,
+        username: users.username,
+        profilePic: users.profilePic,
+      },
+      totalVotes: sql.raw(
+        `( SELECT COALESCE(SUM(
+        CASE 
+          WHEN post_votes.type = 'UP' THEN 1 
+          WHEN post_votes.type = 'DOWN' THEN -1 
+          ELSE 0
+        END
+      ), 0) 
+      FROM post_votes
+      WHERE post_votes."postId" = posts.id 
+      ) AS totalVotes`
+      ),
+      commentCount: sql.raw(`( SELECT COUNT(post_comments.id)
+        FROM post_comments
+        WHERE post_comments."postId" = posts.id
+      ) AS commentCount`),
     })
     .from(posts)
-    .leftJoin(postVotes, eq(posts.id, postVotes.postId))
-    .groupBy(posts.id)
+    .leftJoin(users, eq(posts.userId, users.id))
+    .groupBy(posts.id, users.id, users.name, users.username, users.profilePic)
     .limit(5)
-    .offset(offset);
-  return allPosts;
+    .offset(offset)
+    .then((results) => {
+      return results.map((post) => ({
+        ...post,
+        votes: Number(post.totalVotes),
+        commentCount: Number(post.commentCount),
+      }));
+    });
+  return limitedPosts;
 }

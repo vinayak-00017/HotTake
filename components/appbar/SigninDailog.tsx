@@ -15,7 +15,11 @@ import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { Separator } from "../ui/separator";
-import { changeUsername, checkUsername, userSignup } from "@/lib/actions/user";
+import {
+  changeUsername,
+  checkEmailAvailability,
+  checkUsername,
+} from "@/lib/actions/user";
 import Spinner from "../Spinner";
 import { PasswordInput } from "../ui/passwordInput";
 
@@ -45,10 +49,14 @@ export function SigninDialog() {
     signIn("google");
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isSignup && step === 1) {
       if (!isValidEmail(email)) {
         return setWarning("Enter a valid email address");
+      }
+      const emailAvailable = await isEmailAvailable(email);
+      if (!emailAvailable) {
+        return setWarning("Email already exists, signin instead");
       }
     }
     if (isSignup && step === 2) {
@@ -56,11 +64,11 @@ export function SigninDialog() {
         return setWarning("invalid input");
       }
     }
-    console.log(step);
+
     if (step === 2 && password && isValidUsername && !isUsernameTaken) {
-      signIn("credentials", { usernameOrEmail: email, password })
+      signIn("credentials", { usernameOrEmail: email, password, username })
         .then(() => {
-          changeUsername(username, email);
+          changeUsername(username);
         })
         .catch((err: any) => {
           console.error("Signin failed:", err);
@@ -78,6 +86,10 @@ export function SigninDialog() {
     const re =
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
+  };
+
+  const isEmailAvailable = async (email: string) => {
+    return await checkEmailAvailability(email);
   };
 
   const handleUsernameChange = async (event: any) => {

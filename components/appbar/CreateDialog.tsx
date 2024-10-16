@@ -15,65 +15,123 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { createPost } from "@/lib/actions/post";
+import { CreatePostPlus } from "@/utils/Icons";
+import Spinner from "../Spinner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const CreateDialog = () => {
   const [content, setContent] = useState<string>("");
-  const [title, setTitle] = useState<string>();
+  const [title, setTitle] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const handleSubmit = async () => {
     if (title) {
+      setLoading(true);
       await createPost({ title, content });
+    } else {
+      window.confirm("Are you sure you want to close without saving?");
     }
   };
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] ">
-        <DialogHeader>
-          <DialogTitle>Create</DialogTitle>
-        </DialogHeader>
-        <div className="gap-4 py-4">
-          <Input
-            placeholder="Title.."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="col-span-3"
-          />
-        </div>
-        <div>
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What spicy dish are you cookin?"
-            className=" resize-y w-full"
-          />
-        </div>
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleCloseAttempt();
+    } else {
+      setIsOpen(open);
+    }
+  };
 
-        <DialogFooter>
-          <DialogClose>
-            <Button onClick={handleSubmit}>Post</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+  const handleCloseAttempt = () => {
+    if (title || content) {
+      setIsAlertOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  const handleCancleClose = () => {
+    setIsAlertOpen(false);
+  };
+
+  const handleConfirmClose = () => {
+    setContent("");
+    setTitle("");
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="rounded-full">
+            <CreatePostPlus />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[625px] ">
+          <DialogHeader>
+            <DialogTitle>Create</DialogTitle>
+          </DialogHeader>
+          <div className="gap-4 py-4">
+            <Input
+              placeholder="What spicy dish are you cookin?"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div>
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Description..."
+              className=" resize-y w-full"
+            />
+          </div>
+
+          <DialogFooter>
+            {!loading ? (
+              <DialogClose>
+                <Button onClick={handleSubmit}>Post</Button>
+              </DialogClose>
+            ) : (
+              <Spinner />
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancleClose}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

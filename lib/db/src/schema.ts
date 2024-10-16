@@ -34,24 +34,24 @@ export const posts = pgTable("posts", {
   updatedAt: timestamp("updatedAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
 
-export const category = pgTable("category", {
+export const tags = pgTable("tags", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   name: varchar("name", { length: 255 }).notNull(),
 });
 
-export const postCategory = pgTable(
-  "post_category",
+export const postTags = pgTable(
+  "post_tags",
   {
     postId: uuid("postId")
       .references(() => posts.id)
       .notNull(),
-    categoryId: uuid("categoryId")
-      .references(() => category.id)
+    tagId: uuid("tagId")
+      .references(() => tags.id)
       .notNull(),
   },
   (table) => {
     return {
-      pk: primaryKey({ columns: [table.postId, table.categoryId] }),
+      pk: primaryKey({ columns: [table.postId, table.tagId] }),
     };
   }
 );
@@ -64,6 +64,7 @@ export const postVotes = pgTable("post_votes", {
   createdAt: timestamp("createdAt").default(sql.raw("CURRENT_TIMESTAMP")),
 });
 
+//Comments schema
 export const postComments = pgTable("post_comments", {
   id: uuid("id").primaryKey().default(sql.raw("uuid_generate_v4()")),
   postId: uuid("postId")

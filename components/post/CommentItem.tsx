@@ -1,10 +1,11 @@
 import classNames from "classnames";
-import React from "react";
+import React, { useState } from "react";
 import CommentInput from "./CommentInput";
 import { Comment } from "@/utils/comments";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import CommentFooter from "./CommentFooter";
+import { Minus, Plus } from "@/utils/Icons";
 
 const CommentItem = ({
   setComments,
@@ -17,6 +18,9 @@ const CommentItem = ({
   openReplyIds: string[];
   setOpenReplyIds: (ids: string[]) => void;
 }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isContentVisible, setIsContentVisible] = useState(true);
+
   const router = useRouter();
   const handleReplyClick = () => {
     if (openReplyIds.includes(comment.id)) {
@@ -25,6 +29,9 @@ const CommentItem = ({
       setOpenReplyIds([...openReplyIds, comment.id]);
     }
   };
+  const toggleExpand = () => setIsExpanded(!isExpanded);
+  const toggleContent = () => setIsContentVisible(!isContentVisible);
+
   return (
     <article
       key={comment.id}
@@ -33,47 +40,66 @@ const CommentItem = ({
         "ml-0": !comment.parentId,
       })}
     >
-      <div
-        className="flex my-2 cursor-pointer"
-        onClick={() => router.push(`/profile/${comment.user.username}`)}
-      >
-        <Image
-          src={comment.user.profilePic || "/profilePic/redChili.webp"}
-          alt="profilePic"
-          width={30}
-          height={30}
-          className="rounded-full"
-        />
-        <h6 className="mx-1">{comment.user.name}</h6>
-        <h6>@{comment.user.username}</h6>
+      <div>
+        <button onClick={toggleContent} className="mr-2 mt-1">
+          {isContentVisible ? <Minus /> : <Plus />}
+        </button>
+
+        {isContentVisible ? (
+          <div>
+            <div
+              className="flex my-2 cursor-pointer"
+              onClick={() => router.push(`/profile/${comment.user.username}`)}
+            >
+              <Image
+                src={comment.user.profilePic ?? "/profilePic/redChili.webp"}
+                alt="profilePic"
+                width={30}
+                height={30}
+                className="rounded-full"
+              />
+              <h6 className="mx-1">{comment.user.name}</h6>
+              <h6>@{comment.user.username}</h6>
+            </div>
+
+            <h3>{comment.content}</h3>
+            {/* <button onClick={toggleExpand} className="mr-2">
+              {isExpanded ? <Minus /> : <Plus />}
+            </button> */}
+            <CommentFooter
+              commentId={comment.id}
+              votes={comment.votes}
+              handleClick={handleReplyClick}
+            ></CommentFooter>
+          </div>
+        ) : (
+          <div>{!comment.parentId && <span>{comment.user.name}</span>}</div>
+        )}
+        {openReplyIds.includes(comment.id) && (
+          <CommentInput
+            setComments={setComments}
+            handleClick={handleReplyClick}
+            postId={comment.postId}
+            parentId={comment.id}
+          />
+        )}
       </div>
-      <h3>{comment.content}</h3>
-      <CommentFooter
-        commentId={comment.id}
-        votes={comment.votes}
-        handleClick={handleReplyClick}
-      ></CommentFooter>
-      {openReplyIds.includes(comment.id) && (
-        <CommentInput
-          setComments={setComments}
-          handleClick={handleReplyClick}
-          postId={comment.postId}
-          parentId={comment.id}
-        />
-      )}
-      {comment.children && comment.children.length > 0 && (
-        <div>
-          {comment.children.map((child) => (
-            <CommentItem
-              setComments={setComments}
-              key={child.id}
-              comment={child}
-              openReplyIds={openReplyIds}
-              setOpenReplyIds={setOpenReplyIds}
-            />
-          ))}
-        </div>
-      )}
+      {isContentVisible &&
+        isExpanded &&
+        comment.children &&
+        comment.children.length > 0 && (
+          <div>
+            {comment.children.map((child) => (
+              <CommentItem
+                setComments={setComments}
+                key={child.id}
+                comment={child}
+                openReplyIds={openReplyIds}
+                setOpenReplyIds={setOpenReplyIds}
+              />
+            ))}
+          </div>
+        )}
     </article>
   );
 };

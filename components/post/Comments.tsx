@@ -35,7 +35,7 @@ const Comments = ({ profilePic }: { profilePic: string | null }) => {
       {!isOpen && (
         <div onClick={() => setIsOpen(true)} className="flex m-4 ">
           <Image
-            src={profilePic || "/profilePic/redChili.webp"}
+            src={profilePic ?? "/profilePic/redChili.webp"}
             alt="profilePic"
             width={48}
             height={48}
