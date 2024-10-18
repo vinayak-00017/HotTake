@@ -3,16 +3,18 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
-import { postVotes, posts, users } from "../db/src/schema";
+import { postTags, postVotes, posts, tags, users } from "../db/src/schema";
 import { and, eq, sql } from "drizzle-orm";
 
 //posts
 export async function createPost({
   title,
   content,
+  inputTags,
 }: {
   title: string;
   content: string;
+  inputTags: string[];
 }) {
   const session = await getServerSession(authOptions);
 
@@ -24,11 +26,45 @@ export async function createPost({
 
   const userId = session.user.id;
 
-  await db.insert(posts).values({
-    title,
-    content,
-    userId,
-  });
+  const response = await db
+    .insert(posts)
+    .values({
+      title,
+      content,
+      userId,
+    })
+    .returning({ postId: posts.id });
+
+  const postId = response[0].postId;
+
+  const formatedTags = inputTags.map((tag) => tag.toLowerCase());
+
+  const tagIds = await Promise.all(
+    formatedTags.map(async (tag) => {
+      const existingTag = await db
+        .select({ id: tags.id })
+        .from(tags)
+        .where(eq(tags.name, tag))
+        .limit(1);
+
+      if (existingTag.length > 0) {
+        return existingTag[0].id;
+      } else {
+        const newTag = await db
+          .insert(tags)
+          .values({ name: tag })
+          .returning({ id: tags.id });
+        return newTag[0].id;
+      }
+    })
+  );
+
+  await db.insert(postTags).values(
+    tagIds.map((tagId) => ({
+      postId,
+      tagId,
+    }))
+  );
 
   return {
     message: "Post added",

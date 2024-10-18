@@ -26,19 +26,19 @@ const Feed = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { ref, inView } = useInView();
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = async () => {
     setLoading(true);
     const fetchedPosts: PostType[] = await infinitePosts(page);
     setPosts((prevPosts) => [...prevPosts, ...fetchedPosts]);
     setPage((page) => page + 1);
     setLoading(false);
-  }, []);
+  };
 
   useEffect(() => {
     if (inView) {
       fetchPosts();
     }
-  }, [inView, fetchPosts]);
+  }, [inView]);
 
   return (
     <div>

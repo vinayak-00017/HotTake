@@ -9,8 +9,6 @@ const ProfileHeader = async () => {
       <h3>name</h3>
       <h4>username</h4>
       <p>bio</p>
-      <span>followers</span>
-      <span>following</span>
     </div>
   );
 };

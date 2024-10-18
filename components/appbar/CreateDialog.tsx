@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { Input } from "../ui/input";
 import { createPost } from "@/lib/actions/post";
 import { CreatePostPlus, Cross } from "@/utils/Icons";
@@ -31,11 +31,14 @@ const CreateDialog = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>("");
   const [warning, setWarning] = useState<boolean>(false);
+  const [tagsLimitWarning, setTagsLimitWarning] = useState<boolean>(false);
+  const [aiWarning, setAiWarning] = useState<boolean>(false);
+  const [aiLoading, setAiLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     if (title) {
       setLoading(true);
-      await createPost({ title, content });
+      await createPost({ title, content, inputTags: tags });
     } else {
       window.confirm("Are you sure you want to close without saving?");
     }
@@ -72,27 +75,45 @@ const CreateDialog = () => {
       setWarning(true);
       return;
     }
-    if (tags.length < 5) setWarning(false);
-    const data = await generateTags(title, content);
-    const generatedTags = data.map((tag: string) => tag.toLowerCase());
-    setTags((prevTags) => {
-      const uniqueTags = generatedTags.filter(
-        (tag: string) => !prevTags.includes(tag)
-      );
-      return [...prevTags, ...uniqueTags];
-    });
+    if (tags.length < 5) {
+      setAiLoading(true);
+      setWarning(false);
+      const count = 5 - tags.length;
+      const data = await generateTags(title, content, count);
+      if (data.status === 200) {
+        const generatedTags = data.tags.map((tag: string) => tag.toLowerCase());
+        setTags((prevTags) => {
+          const uniqueTags = generatedTags.filter(
+            (tag: string) => !prevTags.includes(tag)
+          );
+          return [...prevTags, ...uniqueTags];
+        });
+      } else {
+        setAiWarning(true);
+      }
+    } else {
+      setTagsLimitWarning(true);
+      return;
+    }
+    setAiLoading(false);
   };
 
   const handleTagInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
-      setTags((prevTags) => [...prevTags, tagInput.trim().toLowerCase()]);
-      setTagInput("");
-      e.preventDefault();
+    if (tags.length < 5) {
+      if (e.key === "Enter" && tagInput.trim() !== "") {
+        setTags((prevTags) => [...prevTags, tagInput.trim().toLowerCase()]);
+        setTagInput("");
+        e.preventDefault();
+      }
+    } else {
+      setTagsLimitWarning(true);
+      return;
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
+    setTagsLimitWarning(false);
   };
 
   return (
@@ -122,13 +143,29 @@ const CreateDialog = () => {
               ))}
               <input
                 className="flex-grow p-1 border-none outline-none bg-inherit"
-                placeholder="Add tags"
+                placeholder="Add tags, press enter after every tag"
                 value={tagInput}
                 onKeyDown={handleTagInputKeyPress}
                 onChange={(e) => setTagInput(e.target.value)}
               />
             </div>
-            {warning && <div>Please input content to generate tags</div>}
+            <Button className="bg-slate-500" onClick={generateTagsFromAI}>
+              {!aiLoading ? "generated tags with AI" : <Spinner />}
+            </Button>
+            {warning && (
+              <div className="text-red-700">
+                Please input content to generate tags
+              </div>
+            )}
+            {tagsLimitWarning && (
+              <div className="text-red-700">Max tag limit is 5</div>
+            )}
+            {aiWarning && (
+              <div className="text-red-700">
+                Ai doesn&apos;t like your wording, try adding custom tags
+              </div>
+            )}
+
             <div className="gap-4 py-4">
               <Input
                 placeholder="What spicy dish are you cookin?"
