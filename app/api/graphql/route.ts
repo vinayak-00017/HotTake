@@ -1,34 +1,18 @@
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { ApolloServer } from "@apollo/server";
 import { NextRequest } from "next/server";
-import { gql } from "graphql-tag";
+import { typeDefs } from "./schema";
+import { resolvers } from "./resolvers";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { pool } from "@/lib/db/src/db";
+import * as dbSchema from "@/lib/db/src/schema";
+import { buildSchema } from "drizzle-graphql";
 
-const typeDefs = `#graphql
-  type users {
-    id: ID!
-     email: String!
-  password: String
-  username: String!
-  name: String
-  profilePic: String
-  }  
+const db = drizzle(pool, { schema: dbSchema });
 
-type Query {
-    users: [User!]!
-  user(id: ID!): User
-  }
-`;
+const { schema } = buildSchema(db);
 
-const resolvers = {
-  Query: {
-    hello: () => "Hello world!",
-  },
-};
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+const server = new ApolloServer({ schema });
 
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
   context: async (req: NextRequest) => ({ req }),

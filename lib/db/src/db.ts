@@ -8,7 +8,7 @@ if (!process.env.DATABASE_URL) {
   console.log("no database url");
 }
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
