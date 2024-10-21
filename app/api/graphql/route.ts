@@ -12,7 +12,7 @@ const db = drizzle(pool, { schema: dbSchema });
 
 const { schema } = buildSchema(db);
 
-const server = new ApolloServer({ schema });
+const server = new ApolloServer({ typeDefs, resolvers });
 
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
   context: async (req: NextRequest) => ({ req }),

@@ -8,7 +8,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
     <main className="root">
       <div className="root-container">
         <div className="wrapper">
-          <Appbar></Appbar>
+          <Appbar />
           <div className="grid grid-cols-layout">
             <LeftSidebar />
             <main>{children}</main>

@@ -1,10 +1,14 @@
 "use server";
+import { gql } from "@apollo/client";
+import { getClient } from "@/lib/apollo/apollo-client";
 
 import { eq } from "drizzle-orm";
 import db from "../db/src/db";
 import { users } from "../db/src/schema";
 import { authOptions } from "../auth/authOptions";
 import { getServerSession } from "next-auth";
+
+const client = getClient();
 
 //checks username availibility
 export async function checkUsername(username: string) {
@@ -109,13 +113,19 @@ export async function getUser() {
 
 export async function getUsername(userId: string) {
   try {
-    const username = await db
-      .select({
-        username: users.username,
-      })
-      .from(users)
-      .where(eq(users.id, userId));
-    return username[0].username;
+    const query = gql`
+      query GetUser($id: ID!) {
+        user(id: $id) {
+          username
+        }
+      }
+    `;
+    const { data } = await client.query({
+      query,
+      variables: { id: userId },
+    });
+    console.log(data);
+    return data.user.username;
   } catch (err) {
     console.error(err);
   }

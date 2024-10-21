@@ -4,9 +4,13 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import OverviewFeed from "./OverviewFeed";
 import PostsFeed from "./PostsFeed";
+import { useQuery } from "@apollo/client";
+import { GET_INFINITE_POSTS } from "@/lib/apollo/queries/posts";
 
 const ProfileFeed = () => {
   const [selectedFeed, setSelectedFeed] = useState("overview");
+  const { loading, error, data } = useQuery(GET_INFINITE_POSTS);
+  console.log(data);
 
   const renderFeed = (): JSX.Element => {
     switch (selectedFeed) {

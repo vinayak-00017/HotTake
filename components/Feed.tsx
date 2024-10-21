@@ -4,6 +4,8 @@ import { allPosts, infinitePosts } from "@/lib/actions/post";
 import React, { useCallback, useEffect, useState } from "react";
 import Post from "./post/Posts";
 import { useInView } from "react-intersection-observer";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Spinner } from "@/utils/Icons";
 export type UserType = {
   id: string;
   name: string | null;
@@ -19,46 +21,84 @@ export type PostType = {
   commentCount: number;
   user: UserType | null;
 };
-
+type InfinitePostsResponse = {
+  data: PostType[];
+  nextCursor: number | null;
+};
 const Feed = () => {
   const [page, setPage] = useState<number>(0);
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { ref, inView } = useInView();
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    const fetchedPosts: PostType[] = await infinitePosts(page);
-    setPosts((prevPosts) => [...prevPosts, ...fetchedPosts]);
-    setPage((page) => page + 1);
-    setLoading(false);
-  };
+  // const fetchPosts = async () => {
+  //   setLoading(true);
+  //   const fetchedPosts: PostType[] = await infinitePosts(page);
+  //   setPosts((prevPosts) => [...prevPosts, ...fetchedPosts]);
+  //   setPage((page) => page + 1);
+  //   setLoading(false);
+  // };
 
-  useEffect(() => {
-    if (inView) {
-      fetchPosts();
-    }
-  }, [inView]);
+  // useEffect(() => {
+  //   if (inView) {
+  //     fetchPosts();
+  //   }
+  // }, [inView]);
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery<InfinitePostsResponse>({
+    queryKey: ["infinitePosts"],
+    queryFn: ({ pageParam }) => infinitePosts(pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+  });
 
-  return (
-    <div>
-      {posts.map((post) => {
-        return (
-          <Post
-            user={post.user}
-            key={post.id}
-            title={post.title}
-            content={post.content}
-            id={post.id}
-            votes={post.votes}
-            commentCount={post.commentCount}
-          ></Post>
-        );
-      })}
-      <div ref={ref}></div>
-      <button onClick={fetchPosts}>load more</button>
-    </div>
+  return status === "pending" ? (
+    <Spinner></Spinner>
+  ) : status === "error" ? (
+    <p>Error: {error.message}</p>
+  ) : (
+    <>
+      {data.pages.map((group, i) => (
+        <React.Fragment key={i}>
+          {group.data.map((post) => (
+            <Post
+              user={post.user}
+              key={post.id}
+              title={post.title}
+              content={post.content}
+              id={post.id}
+              votes={post.votes}
+              commentCount={post.commentCount}
+            ></Post>
+          ))}
+        </React.Fragment>
+      ))}
+      <div>
+        <button
+          onClick={() => fetchNextPage()}
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage
+            ? "Loading more..."
+            : hasNextPage
+              ? "Load More"
+              : "Nothing more to load"}
+        </button>
+      </div>
+      <div>{isFetching && !isFetchingNextPage ? "Fetching..." : null}</div>
+    </>
   );
+  // <div>
+  //   {/* <div ref={ref}></div>
+  //   <button onClick={fetchPosts}>load more</button> */}
+  // </div>
 };
 
 export default Feed;

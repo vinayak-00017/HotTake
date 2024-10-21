@@ -23,6 +23,8 @@ type Posts {
   tags: [Tags!]
   postVotes: [PostVotes!]
   postComments: [PostComments!]
+  commentCount: Int!
+  totalVotes: Int!
 }
 
 type Tags {
@@ -70,12 +72,27 @@ type CommentVotes {
   type: UserVote!
   createdAt: DateTime!
 }
+# type PostConnection {
+#     edges: [PostEdge!]!
+#     pageInfo: PageInfo!
+#   }
+
+#   type PostEdge {
+#     cursor: String!
+#     node: Posts!
+#   }
+
+#   type PageInfo {
+#     endCursor: String
+#     hasNextPage: Boolean!
+#   }
 
 type Query {
   user(id: ID!): Users
   users: [Users!]!
   post(id: ID!): Posts
   posts: [Posts!]!
+  # infinitePosts(first: Int, after: String): PostConnection!
   tag(id: ID!): Tags
   tags: [Tags!]!
   postComment(id: ID!): PostComments
@@ -109,5 +126,4 @@ type Mutation {
 
 scalar DateTime
 
-scalar DateTime
 `;

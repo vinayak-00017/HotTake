@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/authOptions";
 import db from "../db/src/db";
 import { postTags, postVotes, posts, tags, users } from "../db/src/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 //posts
 export async function createPost({
@@ -155,8 +155,7 @@ export async function allPosts() {
       }));
     });
 }
-export async function infinitePosts(page: number) {
-  const offset = page * 5;
+export async function infinitePosts(cursor: number) {
   const limitedPosts = await db
     .select({
       id: posts.id,
@@ -190,7 +189,7 @@ export async function infinitePosts(page: number) {
     .leftJoin(users, eq(posts.userId, users.id))
     .groupBy(posts.id, users.id, users.name, users.username, users.profilePic)
     .limit(5)
-    .offset(offset)
+    .offset(cursor)
     .then((results) => {
       return results.map((post) => ({
         ...post,
@@ -198,5 +197,7 @@ export async function infinitePosts(page: number) {
         commentCount: Number(post.commentCount),
       }));
     });
-  return limitedPosts;
+  const nextCursor = limitedPosts.length < 1 ? null : cursor + 5;
+
+  return { data: limitedPosts, nextCursor: nextCursor };
 }
