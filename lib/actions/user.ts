@@ -1,14 +1,10 @@
 "use server";
-import { gql } from "@apollo/client";
-import { getClient } from "@/lib/apollo/apollo-client";
 
 import { eq } from "drizzle-orm";
 import db from "../db/src/db";
 import { users } from "../db/src/schema";
 import { authOptions } from "../auth/authOptions";
 import { getServerSession } from "next-auth";
-
-const client = getClient();
 
 //checks username availibility
 export async function checkUsername(username: string) {
@@ -66,24 +62,6 @@ export async function changeUsername(username: string) {
   }
 }
 
-// export async function getUser() {
-//   try{
-//     const session = await getServerSession(authOptions);
-//     if(session?.user && session.user?.id ){
-//       const userId = session.user.ID
-
-//       const user = await db.select({
-//         id: users.id,
-//         username: users.username,
-//         name: users.name,
-//         profilePic: users.profilePic,
-//       }).from(users)
-//     }
-//   }catch(err){
-//     console.error(err)
-//   }
-// }
-
 export async function getUser() {
   try {
     const session = await getServerSession(authOptions);
@@ -113,19 +91,33 @@ export async function getUser() {
 
 export async function getUsername(userId: string) {
   try {
-    const query = gql`
-      query GetUser($id: ID!) {
-        user(id: $id) {
-          username
-        }
-      }
-    `;
-    const { data } = await client.query({
-      query,
-      variables: { id: userId },
-    });
-    console.log(data);
-    return data.user.username;
+    const response = await db
+      .select({
+        username: users.username,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    return response[0];
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// returns user with a specific userId
+export async function getProfileUser(username: string) {
+  try {
+    const response = await db
+      .select({
+        name: users.name,
+        username: users.username,
+        profilePic: users.profilePic,
+        id: users.id,
+      })
+      .from(users)
+      .where(eq(users.username, username));
+
+    return response[0];
   } catch (err) {
     console.error(err);
   }

@@ -148,3 +148,53 @@ export async function addComment({
     console.error(err);
   }
 }
+
+export async function infiniteComments(id: string, cursor: number) {
+  try {
+    return await db
+      .select({
+        id: postComments.id,
+        content: postComments.content,
+        user: {
+          id: users.id,
+          name: users.name,
+          username: users.username,
+          profilePic: users.profilePic,
+        },
+        createdAt: postComments.createdAt,
+        updatedAt: postComments.updatedAt,
+        parentId: postComments.parentId,
+        postId: postComments.postId,
+        totalVotes: sql.raw(
+          `( SELECT COALESCE(SUM(
+            CASE 
+              WHEN comment_votes.type = 'UP' THEN 1 
+              WHEN comment_votes.type = 'DOWN' THEN -1 
+              ELSE 0
+            END
+          ), 0) 
+          FROM comment_votes
+          WHERE comment_votes."commentId" = post_comments.id 
+          ) AS totalVotes`
+        ),
+      })
+      .from(postComments)
+      .innerJoin(users, eq(postComments.userId, users.id))
+      .where(eq(postComments.postId, id))
+      .groupBy(
+        postComments.id,
+        users.id,
+        users.name,
+        users.username,
+        users.profilePic
+      )
+      .then((results) => {
+        return results.map((comment) => ({
+          ...comment,
+          votes: Number(comment.totalVotes),
+        }));
+      });
+  } catch (err) {
+    console.error(err);
+  }
+}

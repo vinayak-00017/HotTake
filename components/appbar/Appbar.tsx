@@ -16,7 +16,7 @@ const Appbar: React.FC = async (): Promise<JSX.Element> => {
   if (session?.user) {
     const fetchedUsername = await getUsername(session.user.id);
     if (fetchedUsername) {
-      username = fetchedUsername;
+      username = fetchedUsername.username;
     }
   }
 

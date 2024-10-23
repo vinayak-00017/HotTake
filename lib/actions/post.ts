@@ -201,3 +201,45 @@ export async function infinitePosts(cursor: number) {
 
   return { data: limitedPosts, nextCursor: nextCursor };
 }
+
+export async function profileInfinitePosts(cursor: number, userId: string) {
+  const limitedPosts = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      content: posts.content,
+      createdAt: posts.createdAt,
+      totalVotes: sql.raw(
+        `( SELECT COALESCE(SUM(
+        CASE 
+          WHEN post_votes.type = 'UP' THEN 1 
+          WHEN post_votes.type = 'DOWN' THEN -1 
+          ELSE 0
+        END
+      ), 0) 
+      FROM post_votes
+      WHERE post_votes."postId" = posts.id 
+      ) AS totalVotes`
+      ),
+      commentCount: sql.raw(`( SELECT COUNT(post_comments.id)
+        FROM post_comments
+        WHERE post_comments."postId" = posts.id
+      ) AS commentCount`),
+    })
+    .from(posts)
+    .leftJoin(users, eq(posts.userId, users.id))
+    .where(eq(posts.userId, userId))
+    .groupBy(posts.id)
+    .limit(5)
+    .offset(cursor)
+    .then((results) => {
+      return results.map((post) => ({
+        ...post,
+        votes: Number(post.totalVotes),
+        commentCount: Number(post.commentCount),
+      }));
+    });
+  const nextCursor = limitedPosts.length < 1 ? null : cursor + 5;
+
+  return { data: limitedPosts, nextCursor: nextCursor };
+}

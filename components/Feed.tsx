@@ -1,11 +1,11 @@
 "use client";
 
-import { allPosts, infinitePosts } from "@/lib/actions/post";
+import { infinitePosts } from "@/lib/actions/post";
 import React, { useCallback, useEffect, useState } from "react";
-import Post from "./post/Posts";
 import { useInView } from "react-intersection-observer";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Spinner } from "@/utils/Icons";
+import Posts from "./post/Posts";
 export type UserType = {
   id: string;
   name: string | null;
@@ -68,7 +68,7 @@ const Feed = () => {
       {data.pages.map((group, i) => (
         <React.Fragment key={i}>
           {group.data.map((post) => (
-            <Post
+            <Posts
               user={post.user}
               key={post.id}
               title={post.title}
@@ -76,7 +76,7 @@ const Feed = () => {
               id={post.id}
               votes={post.votes}
               commentCount={post.commentCount}
-            ></Post>
+            ></Posts>
           ))}
         </React.Fragment>
       ))}

@@ -6,6 +6,7 @@ import { singlePost } from "@/lib/actions/post";
 import { PostType } from "../Feed";
 import Image from "next/image";
 import PostFooter from "./PostFooter";
+import { useQuery } from "@tanstack/react-query";
 
 const Post = () => {
   const [post, setPost] = useState<PostType>();
@@ -14,13 +15,16 @@ const Post = () => {
   const { id } = useParams();
   const postId = Array.isArray(id) ? id[0] : id;
 
+  const { data, isLoading, error, isSuccess } = useQuery({
+    queryKey: ["singlePost", postId],
+    queryFn: () => singlePost(postId),
+  });
+
   useEffect(() => {
-    const fetctPost = async () => {
-      const fetchedPost = await singlePost(postId);
-      setPost(fetchedPost);
-    };
-    fetctPost();
-  }, [postId]);
+    if (isSuccess && data) {
+      setPost(data);
+    }
+  }, [isSuccess, data]);
 
   const handleClick = () => {};
 
