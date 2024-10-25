@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
 import EditProfileDialog from "./EditProfileDialog";
 
 export type UserProfile = {
@@ -18,7 +17,7 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
       <h3>{user.name}</h3>
       <h4>{user.username}</h4>
       <p>bio</p>
-      <EditProfileDialog />
+      <EditProfileDialog user={user} />
     </div>
   );
 };
